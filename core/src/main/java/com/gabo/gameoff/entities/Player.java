@@ -51,6 +51,9 @@ public class Player extends Actor {
         }
         if (moveX != 0 || moveY != 0) {
             tryMoveBy(moveX, moveY);
+            animatedSprite.setAnimation("walk");
+        } else {
+            animatedSprite.setAnimation("idle");
         }
 
         if (Gdx.input.isKeyPressed(Keys.ENTER)) {
