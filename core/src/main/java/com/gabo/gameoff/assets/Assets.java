@@ -2,6 +2,7 @@ package com.gabo.gameoff.assets;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 
 public class Assets {
     private final AssetManager manager;
@@ -28,11 +29,21 @@ public class Assets {
         }
     }
 
+    public void loadAtlases() {
+        for (Atlases atlas : Atlases.values()) {
+            manager.load(atlas.getPath(), TextureAtlas.class);
+        }
+    }
+
     public Texture getImage(Images img) {
         return manager.get(img.getPath(), Texture.class);
     }
 
     public void dispose() {
         manager.dispose();
+    }
+
+    public TextureAtlas getAtlas(Atlases atlas) {
+        return manager.get(atlas.getPath(), TextureAtlas.class);
     }
 }

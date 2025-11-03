@@ -11,6 +11,7 @@ public class LoadingScreen implements Screen {
     public LoadingScreen(Core core) {
         this.core = core;
         assets.loadImages();
+        assets.loadAtlases();
     }
 
     @Override

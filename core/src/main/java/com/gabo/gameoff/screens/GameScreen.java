@@ -9,47 +9,30 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.gabo.gameoff.assets.Assets;
+import com.gabo.gameoff.stages.HouseStage;
 import com.gabo.gameoff.utils.DialogueBox;
 
 /**
  * First screen of the application. Displayed after the application is created.
  */
 public class GameScreen implements Screen {
-
-    Stage stage = new Stage();
     Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
-    Assets assets;
 
-    DialogueBox dialogueBox;
+    public HouseStage stage;
+    public Assets assets;
+    public DialogueBox dialogueBox;
 
     public GameScreen(Assets assets) {
-        this.assets = assets;
-        /*
-         * Image background = new Image(assets.getImage(Images.space));
-         * background.setFillParent(true);
-         * background.setOrigin(Align.center);
-         * background.getColor().a = 0f;
-         * background.addAction(
-         * Actions.parallel(
-         * Actions.fadeIn(5f),
-         * Actions.scaleTo(1.5f, 1.5f, 20f, Interpolation.smooth)));
-         * stage.addActor(background);
-         */
-        dialogueBox = new DialogueBox(skin);
-        List<String> lines = new ArrayList<>(
-                Arrays.asList(
-                        "They have been coming.",
-                        "They have been coming, in waves.",
-                        "To take them all.",
-                        "Oh no please.",
-                        "I don't want go to..."));
 
-        dialogueBox.setLines(lines);
+        this.assets = assets;
+        stage = new HouseStage(this);
+
+        dialogueBox = new DialogueBox(skin);
         stage.addActor(dialogueBox);
+
         stage.addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
@@ -82,6 +65,7 @@ public class GameScreen implements Screen {
     public void resize(int width, int height) {
         if (width <= 0 || height <= 0)
             return;
+        stage.getViewport().update(width, height);
     }
 
     @Override
@@ -98,5 +82,17 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+    }
+
+    public void setDialogues() {
+        List<String> lines = new ArrayList<>(
+                Arrays.asList(
+                        "They have been coming.",
+                        "They have been coming, in waves.",
+                        "To take them all.",
+                        "Oh no please.",
+                        "I don't want go to..."));
+
+        dialogueBox.setLines(lines);
     }
 }

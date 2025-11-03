@@ -9,7 +9,7 @@ public class AnimatedSprite {
     private TextureAtlas atlas;
     private TextureAtlas.AtlasRegion currentSprite;
     private Animation<TextureAtlas.AtlasRegion> animation;
-    public String animationName;
+    private String animationName = "";
     private float stateTime = 0f;
     private float frameDuration = 0.1f;
 
