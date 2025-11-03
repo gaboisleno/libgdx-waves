@@ -1,53 +1,36 @@
 package com.gabo.gameoff.screens;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.gabo.gameoff.assets.Assets;
+import com.gabo.gameoff.stages.GuiStage;
 import com.gabo.gameoff.stages.HouseStage;
-import com.gabo.gameoff.utils.DialogueBox;
 
 /**
  * First screen of the application. Displayed after the application is created.
  */
 public class GameScreen implements Screen {
-    Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
+    public Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
 
     public HouseStage stage;
+    public GuiStage guiStage;
     public Assets assets;
-    public DialogueBox dialogueBox;
 
     public GameScreen(Assets assets) {
-
         this.assets = assets;
+
         stage = new HouseStage(this);
+        guiStage = new GuiStage(this);
 
-        dialogueBox = new DialogueBox(skin);
-        stage.addActor(dialogueBox);
-
-        stage.addListener(new InputListener() {
-            @Override
-            public boolean keyDown(InputEvent event, int keycode) {
-                if (keycode == Keys.ENTER) {
-                    if (dialogueBox.isFinished()) {
-                        dialogueBox.nextLine();
-                    } else {
-                        dialogueBox.skip();
-                    }
-                }
-                return true;
-            }
-        });
-
-        Gdx.input.setInputProcessor(stage);
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(stage);
+        inputMultiplexer.addProcessor(guiStage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     @Override
@@ -57,8 +40,14 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
-        stage.act(delta);
+
+        if (guiStage.isDialogueFinish()) {
+            stage.act(delta);
+        }
         stage.draw();
+
+        guiStage.act(delta);
+        guiStage.draw();
     }
 
     @Override
@@ -66,6 +55,7 @@ public class GameScreen implements Screen {
         if (width <= 0 || height <= 0)
             return;
         stage.getViewport().update(width, height);
+        guiStage.getViewport().update(width, height);
     }
 
     @Override
@@ -84,15 +74,7 @@ public class GameScreen implements Screen {
     public void dispose() {
     }
 
-    public void setDialogues() {
-        List<String> lines = new ArrayList<>(
-                Arrays.asList(
-                        "They have been coming.",
-                        "They have been coming, in waves.",
-                        "To take them all.",
-                        "Oh no please.",
-                        "I don't want go to..."));
-
-        dialogueBox.setLines(lines);
+    public void showDialogues(List<String> dialogues) {
+        guiStage.setDialogues(dialogues);
     }
 }

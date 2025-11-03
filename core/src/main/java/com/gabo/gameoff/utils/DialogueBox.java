@@ -6,14 +6,18 @@ import java.util.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
+import com.gabo.gameoff.Core;
 
 public class DialogueBox extends Table {
     private Label textLabel;
     private float timePerChar = 0.02f;
     private float elapsed;
-    private boolean finished;
+    private boolean finished = true;
     private int visibleChars;
     private String fullText;
+
+    private Runnable onFinish;
 
     List<String> lines = new ArrayList<>();
     int currentLine = 0;
@@ -21,10 +25,18 @@ public class DialogueBox extends Table {
     public DialogueBox(Skin skin) {
         super(skin);
         setFillParent(true);
+        align(Align.bottom); // Alinea los hijos al fondo
+        setDebug(false); // activar true para ver los bordes de la tabla si querés
 
         textLabel = new Label("", skin);
         textLabel.setWrap(true);
-        add(textLabel).width(400).row();
+
+        add(textLabel)
+                .width(Core.VIEW_WIDTH * 0.9f)
+                .padBottom(10f)
+                .center()
+                .bottom()
+                .row();
     }
 
     public void setDialogue(String text) {
@@ -40,6 +52,12 @@ public class DialogueBox extends Table {
             currentLine++;
             setDialogue(lines.get(currentLine));
         } else {
+            textLabel.setText("");
+            lines.clear();
+            if (onFinish != null) {
+                onFinish.run();
+                onFinish = null;
+            }
             finished = true;
         }
     }
@@ -69,9 +87,10 @@ public class DialogueBox extends Table {
         return this.finished;
     }
 
-    public void setLines(List<String> lines2) {
+    public void setLines(List<String> lines2, Runnable runnable) {
         lines = lines2;
         currentLine = 0;
+        onFinish = runnable;
         setDialogue(lines.get(currentLine));
     }
 
@@ -80,5 +99,9 @@ public class DialogueBox extends Table {
             textLabel.setText(fullText);
             finished = true;
         }
+    }
+
+    public boolean isAllLinesDone() {
+        return lines.isEmpty();
     }
 }

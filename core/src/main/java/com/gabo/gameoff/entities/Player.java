@@ -1,5 +1,9 @@
 package com.gabo.gameoff.entities;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -41,8 +45,14 @@ public class Player extends Actor {
         if (Gdx.input.isKeyPressed(Keys.S)) {
             moveY = -SPEED * delta;
         }
+        if (moveX != 0 || moveY != 0) {
+            tryMoveBy(moveX, moveY);
+        }
 
-        tryMoveBy(moveX, moveY);
+        if (Gdx.input.isKeyPressed(Keys.ENTER)) {
+            interact();
+        }
+        getStage().getCamera().position.set(getX() + Core.CELL_WIDTH / 2, getY() + Core.CELL_HEIGHT / 2, 0);
     }
 
     @Override
@@ -72,5 +82,16 @@ public class Player extends Actor {
             }
         }
         return false;
+    }
+
+    public void interact() {
+        HouseStage stage = (HouseStage) getStage();
+        List<String> exampleLines = new ArrayList<>(
+                Arrays.asList(
+                        "Hi... my name is Richard",
+                        "There is something strage happening.",
+                        "The rain is red",
+                        "I need a refugee, would you let me in please ?."));
+        stage.showDialogues(exampleLines);
     }
 }

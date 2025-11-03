@@ -15,6 +15,8 @@ public class Core extends Game {
     public static final int VIEW_WIDTH = 320;
     public static final int VIEW_HEIGHT = 180;
 
+    public static final boolean DEBUG = true;
+
     @Override
     public void create() {
         setScreen(new LoadingScreen(this));
