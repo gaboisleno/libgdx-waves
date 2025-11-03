@@ -9,13 +9,13 @@ import com.gabo.gameoff.screens.LoadingScreen;
  */
 /* 31/10/2025 gabo isleno */
 public class Core extends Game {
-    public static final int CELL_WIDTH = 32;
-    public static final int CELL_HEIGHT = 32;
+    public static final int CELL_WIDTH = 16;
+    public static final int CELL_HEIGHT = 16;
 
     public static final int VIEW_WIDTH = 320;
     public static final int VIEW_HEIGHT = 180;
 
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     @Override
     public void create() {

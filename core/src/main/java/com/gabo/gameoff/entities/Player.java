@@ -26,6 +26,10 @@ public class Player extends Actor {
         animatedSprite.setAnimation("idle");
     }
 
+    public void setPos(float x, float y) {
+        this.setPosition(x, y);
+    }
+
     @Override
     public void act(float delta) {
         super.act(delta);
@@ -58,7 +62,7 @@ public class Player extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-        animatedSprite.draw(batch, getX(), getY());
+        animatedSprite.draw(batch, getX() - getWidth() / 2, getY() - getHeight() / 2);
     }
 
     private void tryMoveBy(float dx, float dy) {
