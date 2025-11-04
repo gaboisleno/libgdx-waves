@@ -29,6 +29,7 @@ public class HouseStage extends Stage {
 
         addActor(backgroundGroup);
         addActor(wallsGroup);
+        addActor(npcsGroup);
         addActor(playerGroup);
     }
 

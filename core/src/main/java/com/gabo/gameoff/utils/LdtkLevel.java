@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.gabo.gameoff.entities.Npc;
 import com.gabo.gameoff.entities.Player;
 import com.gabo.gameoff.stages.HouseStage;
 
@@ -80,9 +81,7 @@ public class LdtkLevel {
     private void loadTiles(JsonValue layer) {
         String pathUrl = "maps/demo/png/Level_0" + "__" + layer.getString("__identifier") + ".png";
         Texture mapTexture = new Texture(Gdx.files.internal(pathUrl));
-
         Image background = new Image(mapTexture);
-
         stage.backgroundGroup.addActor(background);
     }
 
@@ -92,14 +91,36 @@ public class LdtkLevel {
             return;
 
         for (JsonValue entity : entities) {
+            float x = entity.getFloat("__worldX");
+            float y = levelHeight - entity.getFloat("__worldY") - entity.getFloat("height");
 
-            if (entity.getString("__identifier").equals("Player")) {
-                float x = entity.getFloat("__worldX");
-                float y = levelHeight - entity.getFloat("__worldY") - entity.getFloat("height");
-                Player player = new Player(stage.game.assets);
-                player.setPos(x, y);
+            switch (entity.getString("__identifier")) {
+                case "Player":
+                    Player player = new Player(stage.game.assets);
+                    player.setPosition(x, y);
+                    stage.playerGroup.addActor(player);
+                    break;
 
-                stage.playerGroup.addActor(player);
+                case "Npc":
+                    Npc npc = new Npc(stage.game.assets);
+                    npc.setPosition(x, y);
+
+                    for (JsonValue field : entity.get("fieldInstances")) {
+                        if (field.getString("__identifier").equals("Dialogues")) {
+                            JsonValue dialoguesArray = field.get("__value");
+                            if (dialoguesArray != null) {
+                                for (JsonValue d : dialoguesArray) {
+                                    npc.dialogues.add(d.asString());
+                                }
+                            }
+                        }
+                    }
+
+                    stage.npcsGroup.addActor(npc);
+                    break;
+
+                default:
+                    break;
             }
         }
     }

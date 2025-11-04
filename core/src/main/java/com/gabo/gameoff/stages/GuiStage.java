@@ -24,7 +24,7 @@ public class GuiStage extends Stage {
         cam.zoom = 1.25f;
         cam.update();
 
-        setDebugAll(Core.DEBUG);
+        // setDebugAll(Core.DEBUG);
 
         dialogueBox = new DialogueBox(game.skin);
         addActor(dialogueBox);

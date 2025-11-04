@@ -87,8 +87,8 @@ public class DialogueBox extends Table {
         return this.finished;
     }
 
-    public void setLines(List<String> lines2, Runnable runnable) {
-        lines = lines2;
+    public void setLines(List<String> dialogueList, Runnable runnable) {
+        lines = new ArrayList<>(dialogueList);
         currentLine = 0;
         onFinish = runnable;
         setDialogue(lines.get(currentLine));

@@ -1,9 +1,5 @@
 package com.gabo.gameoff.entities;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -24,10 +20,6 @@ public class Player extends Actor {
 
         animatedSprite = new AnimatedSprite(assets.getAtlas(Atlases.player));
         animatedSprite.setAnimation("idle");
-    }
-
-    public void setPos(float x, float y) {
-        this.setPosition(x, y);
     }
 
     @Override
@@ -93,12 +85,14 @@ public class Player extends Actor {
 
     public void interact() {
         HouseStage stage = (HouseStage) getStage();
-        List<String> exampleLines = new ArrayList<>(
-                Arrays.asList(
-                        "Hi babe",
-                        "I'm Gab... but from a videogame.",
-                        "I just wanted to say...",
-                        "I love you"));
-        stage.showDialogues(exampleLines);
+        Rectangle bounds = new Rectangle(getX(), getY(), getWidth(), getHeight());
+
+        for (Actor actor : stage.npcsGroup.getChildren()) {
+            Npc npc = (Npc) actor;
+
+            if (npc.interactArea.overlaps(bounds)) {
+                npc.interact();
+            }
+        }
     }
 }
