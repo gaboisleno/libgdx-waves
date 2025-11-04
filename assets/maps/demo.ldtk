@@ -297,9 +297,9 @@
 		{
 			"__cWid": 20,
 			"__cHei": 12,
-			"identifier": "Tileset",
+			"identifier": "Tileset2",
 			"uid": 1,
-			"relPath": "../../../libgdx-isometric-tb/assets/maps/project/tileset.png",
+			"relPath": "tileset.png",
 			"embedAtlas": null,
 			"pxWid": 320,
 			"pxHei": 180,
