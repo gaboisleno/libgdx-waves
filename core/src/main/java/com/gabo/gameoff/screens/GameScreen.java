@@ -44,6 +44,7 @@ public class GameScreen implements Screen {
         if (guiStage.isDialogueFinish()) {
             stage.act(delta);
         }
+
         stage.draw();
 
         guiStage.act(delta);

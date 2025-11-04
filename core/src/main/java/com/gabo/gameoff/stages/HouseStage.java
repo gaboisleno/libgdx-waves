@@ -12,9 +12,10 @@ import com.gabo.gameoff.utils.LdtkLevel;
 public class HouseStage extends Stage {
     public GameScreen game;
 
-    public Group walls = new Group();
-    public Group player = new Group();
-    public Group npcs = new Group();
+    public Group wallsGroup = new Group();
+    public Group playerGroup = new Group();
+    public Group npcsGroup = new Group();
+    public Group backgroundGroup = new Group();
 
     public HouseStage(GameScreen game) {
         super();
@@ -26,9 +27,22 @@ public class HouseStage extends Stage {
         setViewport(new FitViewport(Core.VIEW_WIDTH, Core.VIEW_HEIGHT));
         getCamera().update();
 
+        addActor(backgroundGroup);
+        addActor(wallsGroup);
+        addActor(playerGroup);
     }
 
     public void showDialogues(List<String> lines) {
         game.showDialogues(lines);
+    }
+
+    @Override
+    public void act() {
+        super.act();
+    }
+
+    @Override
+    public void draw() {
+        super.draw();
     }
 }

@@ -82,7 +82,7 @@ public class Player extends Actor {
         Rectangle bounds = new Rectangle(moveX, moveY, getWidth(), getHeight());
         Rectangle wallBounds = new Rectangle(0, 0, 0, 0);
 
-        for (Actor wall : stage.walls.getChildren()) {
+        for (Actor wall : stage.wallsGroup.getChildren()) {
             wallBounds = new Rectangle(wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight());
             if (bounds.overlaps(wallBounds)) {
                 return true;
@@ -95,10 +95,10 @@ public class Player extends Actor {
         HouseStage stage = (HouseStage) getStage();
         List<String> exampleLines = new ArrayList<>(
                 Arrays.asList(
-                        "Hi... my name is Richard",
-                        "There is something strage happening.",
-                        "The rain is red",
-                        "I need a refugee, would you let me in please ?."));
+                        "Hi babe",
+                        "I'm Gab... but from a videogame.",
+                        "I just wanted to say...",
+                        "I love you"));
         stage.showDialogues(exampleLines);
     }
 }

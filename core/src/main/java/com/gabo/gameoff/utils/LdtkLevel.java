@@ -10,58 +10,97 @@ import com.gabo.gameoff.entities.Player;
 import com.gabo.gameoff.stages.HouseStage;
 
 public class LdtkLevel {
-    private final String path = "maps/demo/simplified/";
+    private final String path = "maps/demo/";
+    float levelHeight, levelWidth;
+    HouseStage stage;
 
     public LdtkLevel(HouseStage stage) {
+        this.stage = stage;
         loadLevel(stage);
     }
 
     private void loadLevel(HouseStage stage) {
-        JsonValue root = new JsonReader().parse(Gdx.files.internal(path + "Level_0/data.json"));
-        Texture mapTexture = new Texture(Gdx.files.internal(path + "Level_0/Tiles.png"));
+        JsonValue root = new JsonReader().parse(Gdx.files.internal(path + "Level_0.ldtkl"));
 
-        Image background = new Image(mapTexture);
-        stage.addActor(background);
+        levelHeight = root.getFloat("pxHei");
+        levelWidth = root.getFloat("pxWid");
 
-        float levelHeight = root.getFloat("height");
-        float levelWidth = root.getFloat("width");
+        JsonValue layerInstances = root.get("layerInstances");
 
-        JsonValue layers = root.get("entities");
-        if (layers == null)
+        if (layerInstances == null)
             return;
 
-        for (JsonValue layer : layers) {
+        for (JsonValue layer : layerInstances) {
+            String type = layer.getString("__type");
 
-            switch (layer.name) {
-                case "Player":
-                    for (JsonValue entity : layer) {
-
-                        float x = entity.getFloat("x");
-                        float y = levelHeight - entity.getFloat("y") - entity.getFloat("height");
-                        Player player = new Player(stage.game.assets);
-                        player.setPos(x, y);
-
-                        stage.player.addActor(player);
-                    }
-                    stage.addActor(stage.player);
+            switch (type) {
+                case "Entities":
+                    loadEntities(layer);
                     break;
-
-                case "Walls":
-                    for (JsonValue entity : layer) {
-                        float x = entity.getFloat("x");
-                        float y = levelHeight - entity.getFloat("y") - entity.getFloat("height");
-                        Actor wall = new Actor();
-                        wall.setBounds(x, y, entity.getInt("width"), entity.getInt("height"));
-                        stage.walls.addActor(wall);
-                    }
-                    stage.addActor(stage.walls);
+                case "Tiles":
+                    loadTiles(layer);
                     break;
-
+                case "IntGrid":
+                    loadIntGrid(layer);
+                    break;
                 default:
                     break;
             }
+        }
 
+    }
+
+    private void loadIntGrid(JsonValue layer) {
+        int gridSize = layer.getInt("__gridSize");
+        JsonValue intGrid = layer.get("intGridCsv");
+
+        // cada valor del intGridCsv representa una celda
+        int cWid = layer.getInt("__cWid");
+        int cHei = layer.getInt("__cHei");
+
+        for (int i = 0; i < intGrid.size; i++) {
+            int value = intGrid.getInt(i);
+            if (value == 0)
+                continue; // sin colisión
+
+            int x = (i % cWid) * gridSize;
+            int y = (i / cWid) * gridSize;
+
+            // invertir eje Y (LDtk usa 0 arriba)
+            y = (cHei * gridSize) - y - gridSize;
+
+            // crear un actor invisible de colisión
+            Actor wall = new Actor();
+            wall.setBounds(x, y, gridSize, gridSize);
+
+            stage.wallsGroup.addActor(wall);
         }
     }
 
+    private void loadTiles(JsonValue layer) {
+        String pathUrl = "maps/demo/png/Level_0" + "__" + layer.getString("__identifier") + ".png";
+        Texture mapTexture = new Texture(Gdx.files.internal(pathUrl));
+
+        Image background = new Image(mapTexture);
+
+        stage.backgroundGroup.addActor(background);
+    }
+
+    private void loadEntities(JsonValue layer) {
+        JsonValue entities = layer.get("entityInstances");
+        if (entities == null)
+            return;
+
+        for (JsonValue entity : entities) {
+
+            if (entity.getString("__identifier").equals("Player")) {
+                float x = entity.getFloat("__worldX");
+                float y = levelHeight - entity.getFloat("__worldY") - entity.getFloat("height");
+                Player player = new Player(stage.game.assets);
+                player.setPos(x, y);
+
+                stage.playerGroup.addActor(player);
+            }
+        }
+    }
 }
