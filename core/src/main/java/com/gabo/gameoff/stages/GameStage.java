@@ -9,7 +9,7 @@ import com.gabo.gameoff.Core;
 import com.gabo.gameoff.screens.GameScreen;
 import com.gabo.gameoff.utils.LdtkLevel;
 
-public class HouseStage extends Stage {
+public class GameStage extends Stage {
     public GameScreen game;
 
     public Group wallsGroup = new Group();
@@ -17,7 +17,7 @@ public class HouseStage extends Stage {
     public Group npcsGroup = new Group();
     public Group backgroundGroup = new Group();
 
-    public HouseStage(GameScreen game) {
+    public GameStage(GameScreen game) {
         super();
         this.game = game;
         setDebugAll(Core.DEBUG);
@@ -37,13 +37,6 @@ public class HouseStage extends Stage {
         game.showDialogues(lines);
     }
 
-    @Override
-    public void act() {
-        super.act();
-    }
-
-    @Override
-    public void draw() {
-        super.draw();
+    public void changeMap() {
     }
 }

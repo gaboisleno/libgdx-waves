@@ -15,7 +15,7 @@ public class Core extends Game {
     public static final int VIEW_WIDTH = 320;
     public static final int VIEW_HEIGHT = 180;
 
-    public static final boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
     @Override
     public void create() {

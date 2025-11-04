@@ -3,13 +3,18 @@ package com.gabo.gameoff.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.gabo.gameoff.Core;
 
 public class DialogueBox extends Table {
+    Table dialogTable;
     private Label textLabel;
     private float timePerChar = 0.02f;
     private float elapsed;
@@ -24,19 +29,36 @@ public class DialogueBox extends Table {
 
     public DialogueBox(Skin skin) {
         super(skin);
+        setDebug(Core.DEBUG);
         setFillParent(true);
-        align(Align.bottom); // Alinea los hijos al fondo
-        setDebug(false); // activar true para ver los bordes de la tabla si querés
+        setVisible(false);
 
+        dialogTable = new Table(skin);
+
+        // Config label
         textLabel = new Label("", skin);
         textLabel.setWrap(true);
+        textLabel.setFontScale(.75f);
+        textLabel.setAlignment(Align.topLeft);
 
-        add(textLabel)
-                .width(Core.VIEW_WIDTH * 0.9f)
-                .padBottom(10f)
-                .center()
-                .bottom()
-                .row();
+        // Config internal table
+        dialogTable.top();
+        dialogTable.add(textLabel)
+                .width(Core.VIEW_WIDTH)
+                .height(Core.VIEW_HEIGHT / 3)
+                .padBottom(0f);
+
+        // Background for table
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(0.1f, 0.1f, 0.5f, .8f);
+        pixmap.fill();
+
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+
+        dialogTable.setBackground(new TextureRegionDrawable(new TextureRegion(texture)));
+
+        bottom().add(dialogTable).expandX();
     }
 
     public void setDialogue(String text) {
@@ -55,6 +77,7 @@ public class DialogueBox extends Table {
             textLabel.setText("");
             lines.clear();
             if (onFinish != null) {
+                setVisible(false);
                 onFinish.run();
                 onFinish = null;
             }
@@ -92,6 +115,7 @@ public class DialogueBox extends Table {
         currentLine = 0;
         onFinish = runnable;
         setDialogue(lines.get(currentLine));
+        setVisible(true);
     }
 
     public void skip() {

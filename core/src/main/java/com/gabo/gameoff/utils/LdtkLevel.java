@@ -8,19 +8,19 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gabo.gameoff.entities.Npc;
 import com.gabo.gameoff.entities.Player;
-import com.gabo.gameoff.stages.HouseStage;
+import com.gabo.gameoff.stages.GameStage;
 
 public class LdtkLevel {
     private final String path = "maps/demo/";
     float levelHeight, levelWidth;
-    HouseStage stage;
+    GameStage stage;
 
-    public LdtkLevel(HouseStage stage) {
+    public LdtkLevel(GameStage stage) {
         this.stage = stage;
         loadLevel(stage);
     }
 
-    private void loadLevel(HouseStage stage) {
+    private void loadLevel(GameStage stage) {
         JsonValue root = new JsonReader().parse(Gdx.files.internal(path + "Level_0.ldtkl"));
 
         levelHeight = root.getFloat("pxHei");
@@ -82,7 +82,8 @@ public class LdtkLevel {
         String pathUrl = "maps/demo/png/Level_0" + "__" + layer.getString("__identifier") + ".png";
         Texture mapTexture = new Texture(Gdx.files.internal(pathUrl));
         Image background = new Image(mapTexture);
-        stage.backgroundGroup.addActor(background);
+        // Since map is reading from top to bottom, I need to change the layer order
+        stage.backgroundGroup.addActorAt(0, background);
     }
 
     private void loadEntities(JsonValue layer) {
@@ -109,8 +110,8 @@ public class LdtkLevel {
                         if (field.getString("__identifier").equals("Dialogues")) {
                             JsonValue dialoguesArray = field.get("__value");
                             if (dialoguesArray != null) {
-                                for (JsonValue d : dialoguesArray) {
-                                    npc.dialogues.add(d.asString());
+                                for (JsonValue dialog : dialoguesArray) {
+                                    npc.dialogues.add(dialog.asString());
                                 }
                             }
                         }

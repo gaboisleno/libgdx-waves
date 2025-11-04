@@ -8,8 +8,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.gabo.gameoff.assets.Assets;
+import com.gabo.gameoff.stages.GameStage;
 import com.gabo.gameoff.stages.GuiStage;
-import com.gabo.gameoff.stages.HouseStage;
 
 /**
  * First screen of the application. Displayed after the application is created.
@@ -17,14 +17,14 @@ import com.gabo.gameoff.stages.HouseStage;
 public class GameScreen implements Screen {
     public Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
 
-    public HouseStage stage;
+    public GameStage stage;
     public GuiStage guiStage;
     public Assets assets;
 
     public GameScreen(Assets assets) {
         this.assets = assets;
 
-        stage = new HouseStage(this);
+        stage = new GameStage(this);
         guiStage = new GuiStage(this);
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();

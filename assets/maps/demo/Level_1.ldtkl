@@ -121,34 +121,6 @@
 			]
 		},
 		{
-			"__identifier": "Tiles2",
-			"__type": "Tiles",
-			"__cWid": 16,
-			"__cHei": 16,
-			"__gridSize": 16,
-			"__opacity": 1,
-			"__pxTotalOffsetX": 0,
-			"__pxTotalOffsetY": 0,
-			"__tilesetDefUid": 1,
-			"__tilesetRelPath": "tileset.png",
-			"iid": "ddee8b01-ac70-11f0-80a9-8fab0f710e4f",
-			"levelId": 17,
-			"layerDefUid": 19,
-			"pxOffsetX": 0,
-			"pxOffsetY": 0,
-			"visible": true,
-			"optionalRules": [],
-			"intGridCsv": [],
-			"autoLayerTiles": [],
-			"seed": 5989068,
-			"overrideTilesetUid": null,
-			"gridTiles": [
-				{ "px": [176,128], "src": [32,32], "f": 0, "t": 42, "d": [139], "a": 1 },
-				{ "px": [176,160], "src": [32,32], "f": 0, "t": 42, "d": [171], "a": 1 }
-			],
-			"entityInstances": []
-		},
-		{
 			"__identifier": "Tiles",
 			"__type": "Tiles",
 			"__cWid": 16,

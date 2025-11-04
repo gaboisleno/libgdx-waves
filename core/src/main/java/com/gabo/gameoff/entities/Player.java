@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.gabo.gameoff.Core;
 import com.gabo.gameoff.assets.Assets;
 import com.gabo.gameoff.assets.Atlases;
-import com.gabo.gameoff.stages.HouseStage;
+import com.gabo.gameoff.stages.GameStage;
 import com.gabo.gameoff.utils.AnimatedSprite;
 
 public class Player extends Actor {
@@ -70,7 +70,7 @@ public class Player extends Actor {
     }
 
     private boolean collides(float moveX, float moveY) {
-        HouseStage stage = (HouseStage) getStage();
+        GameStage stage = (GameStage) getStage();
         Rectangle bounds = new Rectangle(moveX, moveY, getWidth(), getHeight());
         Rectangle wallBounds = new Rectangle(0, 0, 0, 0);
 
@@ -84,7 +84,7 @@ public class Player extends Actor {
     }
 
     public void interact() {
-        HouseStage stage = (HouseStage) getStage();
+        GameStage stage = (GameStage) getStage();
         Rectangle bounds = new Rectangle(getX(), getY(), getWidth(), getHeight());
 
         for (Actor actor : stage.npcsGroup.getChildren()) {

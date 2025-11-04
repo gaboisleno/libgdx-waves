@@ -1,0 +1,9 @@
+red_npc.png
+size:128,64
+repeat:none
+idle
+index:1
+bounds:2,2,32,32
+idle
+index:2
+bounds:36,2,32,32

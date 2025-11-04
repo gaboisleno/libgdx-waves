@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.gabo.gameoff.Core;
 import com.gabo.gameoff.assets.Assets;
 import com.gabo.gameoff.assets.Atlases;
-import com.gabo.gameoff.stages.HouseStage;
+import com.gabo.gameoff.stages.GameStage;
 import com.gabo.gameoff.utils.AnimatedSprite;
 
 public class Npc extends Actor {
@@ -22,7 +22,7 @@ public class Npc extends Actor {
         setBounds(0, 0, Core.CELL_WIDTH, Core.CELL_HEIGHT);
         interactArea = new Rectangle(0, 0, Core.CELL_WIDTH + 16, Core.CELL_HEIGHT + 16);
 
-        animatedSprite = new AnimatedSprite(assets.getAtlas(Atlases.player));
+        animatedSprite = new AnimatedSprite(assets.getAtlas(Atlases.red_npc));
         animatedSprite.setAnimation("idle");
     }
 
@@ -42,7 +42,7 @@ public class Npc extends Actor {
     }
 
     public void interact() {
-        HouseStage stage = (HouseStage) getStage();
+        GameStage stage = (GameStage) getStage();
         stage.showDialogues(dialogues);
     }
 }
