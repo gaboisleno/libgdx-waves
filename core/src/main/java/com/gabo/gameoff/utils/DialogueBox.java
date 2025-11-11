@@ -38,7 +38,6 @@ public class DialogueBox extends Table {
         // Config label
         textLabel = new Label("", skin);
         textLabel.setWrap(true);
-        textLabel.setFontScale(.75f);
         textLabel.setAlignment(Align.topLeft);
 
         // Config internal table

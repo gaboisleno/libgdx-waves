@@ -34,7 +34,7 @@ prettyPrint=false
 legacyOutput=false
 
 scaleFactors=[{suffix:"",factor:1,resampling:bicubic}]
-inputFiles=[{path:../../../idle_1.png,type:Input,regionName:null},{path:../../../idle_2.png,type:Input,regionName:null},{path:../../../walk_1.png,type:Input,regionName:null},{path:../../../walk_2.png,type:Input,regionName:null},{path:../../../walk_3.png,type:Input,regionName:null},{path:../../../walk_4.png,type:Input,regionName:null}]
+inputFiles=[{path:../../../idle_1.png,type:Input,regionName:null},{path:../../../idle_2.png,type:Input,regionName:null},{path:../../../walk_1.png,type:Input,regionName:null},{path:../../../walk_2.png,type:Input,regionName:null},{path:../../../walk_3.png,type:Input,regionName:null},{path:../../../walk_4.png,type:Input,regionName:null},{path:../../../walk_up_1.png,type:Input,regionName:null},{path:../../../walk_up_2.png,type:Input,regionName:null},{path:../../../walk_up_3.png,type:Input,regionName:null},{path:../../../walk_up_4.png,type:Input,regionName:null},{path:../../../walk_right_1.png,type:Input,regionName:null},{path:../../../walk_right_2.png,type:Input,regionName:null},{path:../../../walk_right_3.png,type:Input,regionName:null},{path:../../../walk_right_4.png,type:Input,regionName:null},{path:../../../idle_right_1.png,type:Input,regionName:null},{path:../../../idle_right_2.png,type:Input,regionName:null},{path:../../../idle_up_1.png,type:Input,regionName:null},{path:../../../idle_up_2.png,type:Input,regionName:null}]
 keepInputFileExtensions=false
 
 

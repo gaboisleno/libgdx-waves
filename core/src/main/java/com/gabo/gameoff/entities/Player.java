@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.gabo.gameoff.Core;
 import com.gabo.gameoff.assets.Assets;
@@ -12,8 +13,13 @@ import com.gabo.gameoff.stages.GameStage;
 import com.gabo.gameoff.utils.AnimatedSprite;
 
 public class Player extends Actor {
-    private final float SPEED = 100;
+    private enum Direction {
+        UP, DOWN, LEFT, RIGHT
+    }
+
+    private final float SPEED = 96;
     private AnimatedSprite animatedSprite;
+    private Direction direction = Direction.DOWN;
 
     public Player(Assets assets) {
         setBounds(0, 0, Core.CELL_WIDTH, Core.CELL_HEIGHT);
@@ -30,28 +36,35 @@ public class Player extends Actor {
         float moveX = 0, moveY = 0;
 
         if (Gdx.input.isKeyPressed(Keys.A)) {
-            moveX = -SPEED * delta;
-        }
-        if (Gdx.input.isKeyPressed(Keys.D)) {
-            moveX = SPEED * delta;
-        }
-        if (Gdx.input.isKeyPressed(Keys.W)) {
-            moveY = SPEED * delta;
-        }
-        if (Gdx.input.isKeyPressed(Keys.S)) {
-            moveY = -SPEED * delta;
-        }
-        if (moveX != 0 || moveY != 0) {
-            tryMoveBy(moveX, moveY);
-            animatedSprite.setAnimation("walk");
-        } else {
-            animatedSprite.setAnimation("idle");
+            moveX = -1;
+        } else if (Gdx.input.isKeyPressed(Keys.D)) {
+            moveX = 1;
         }
 
-        if (Gdx.input.isKeyPressed(Keys.ENTER)) {
+        if (Gdx.input.isKeyPressed(Keys.W)) {
+            moveY = 1;
+        } else if (Gdx.input.isKeyPressed(Keys.S)) {
+            moveY = -1;
+        }
+
+        if (moveX != 0 || moveY != 0) {
+            Vector2 dir = new Vector2(moveX, moveY).nor();
+            direction = Math.abs(dir.x) > Math.abs(dir.y)
+                    ? (dir.x > 0 ? Direction.RIGHT : Direction.LEFT)
+                    : (dir.y > 0 ? Direction.UP : Direction.DOWN);
+
+            tryMoveBy(dir.x * SPEED * delta, dir.y * SPEED * delta);
+            setWalkingAnimation();
+        } else {
+            setIdleAnimation();
+        }
+
+        if (Gdx.input.isKeyPressed(Keys.ENTER) || Gdx.input.isKeyPressed(Keys.SPACE)) {
             interact();
         }
+
         getStage().getCamera().position.set(getX() + Core.CELL_WIDTH / 2, getY() + Core.CELL_HEIGHT / 2, 0);
+
     }
 
     @Override
@@ -93,6 +106,48 @@ public class Player extends Actor {
             if (npc.interactArea.overlaps(bounds)) {
                 npc.interact();
             }
+        }
+    }
+
+    private void setWalkingAnimation() {
+        animatedSprite.setFlip(false);
+        switch (direction) {
+            case UP:
+                animatedSprite.setAnimation("walk_up");
+                break;
+            case DOWN:
+                animatedSprite.setAnimation("walk");
+                break;
+            case RIGHT:
+                animatedSprite.setAnimation("walk_right");
+                break;
+            case LEFT:
+                animatedSprite.setFlip(true);
+                animatedSprite.setAnimation("walk_right");
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void setIdleAnimation() {
+        animatedSprite.setFlip(false);
+        switch (direction) {
+            case UP:
+                animatedSprite.setAnimation("idle_up");
+                break;
+            case DOWN:
+                animatedSprite.setAnimation("idle");
+                break;
+            case RIGHT:
+                animatedSprite.setAnimation("idle_right");
+                break;
+            case LEFT:
+                animatedSprite.setFlip(true);
+                animatedSprite.setAnimation("idle_right");
+                break;
+            default:
+                break;
         }
     }
 }

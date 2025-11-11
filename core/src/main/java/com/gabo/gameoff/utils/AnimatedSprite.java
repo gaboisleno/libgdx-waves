@@ -7,11 +7,12 @@ import com.badlogic.gdx.utils.Array;
 
 public class AnimatedSprite {
     private TextureAtlas atlas;
-    private TextureAtlas.AtlasRegion currentSprite;
+    private TextureAtlas.AtlasRegion currentFrame;
     private Animation<TextureAtlas.AtlasRegion> animation;
     private String animationName = "";
     private float stateTime = 0f;
     private float frameDuration = 0.1f;
+    public boolean flipH;
 
     public AnimatedSprite(TextureAtlas atlas) {
         this.atlas = atlas;
@@ -35,11 +36,14 @@ public class AnimatedSprite {
         if (animation == null)
             return;
         stateTime += delta;
-        currentSprite = animation.getKeyFrame(stateTime);
+        currentFrame = animation.getKeyFrame(stateTime);
+        if (currentFrame.isFlipX() != flipH) {
+            currentFrame.flip(true, false);
+        }
     }
 
     public void draw(Batch batch, float x, float y) {
-        batch.draw(currentSprite, x, y);
+        batch.draw(currentFrame, x, y);
     }
 
     public boolean isFinished() {
@@ -57,5 +61,12 @@ public class AnimatedSprite {
     public void setFrameDuration(float duration) {
         this.frameDuration = duration;
         animation.setFrameDuration(duration);
+    }
+
+    public void setFlip(boolean flipX) {
+        this.flipH = flipX;
+        if (currentFrame.isFlipX() != flipH) {
+            currentFrame.flip(true, false);
+        }
     }
 }
