@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -17,31 +18,20 @@ public class CombatScreen implements Screen {
     Stage stage;
 
     private int selectedIndex = 0;
-    private String[] actions = { "FIGHT", "ITEMS", "RUN" };
+    private String[] actions = { "FIGHT", "RUN", "SPELL", "ITEMS" };
     private Array<Label> options;
 
+    // Example
+    private Array<Actor> allies; // allies {name, hp, mp, spells[], attacks[]}
+    private Array<Actor> foes;
+
     public CombatScreen(GameScreen previousScreen) {
+
         this.game = previousScreen;
         stage = new Stage();
+        stage.setDebugAll(true);
 
         createMenu();
-    }
-
-    private void createMenu() {
-        options = new Array<Label>();
-
-        Table table = new Table();
-        table.setFillParent(true);
-        table.bottom().padBottom(10);
-
-        for (String action : actions) {
-            Label label = new Label(action, game.skin);
-            label.setAlignment(Align.left);
-            table.add(label).left().pad(3).row();
-            options.add(label);
-        }
-
-        stage.addActor(table);
     }
 
     @Override
@@ -52,15 +42,18 @@ public class CombatScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
 
-        if (Gdx.input.isKeyJustPressed(Keys.SPACE)) {
-            game.hideCombatScreen();
+        if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
+            if (selectedIndex == 1) {
+                game.hideCombatScreen();
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Keys.W)) {
+            selectedIndex = (selectedIndex - 1 + options.size) % options.size;
         }
 
         if (Gdx.input.isKeyJustPressed(Keys.S)) {
             selectedIndex = (selectedIndex + 1) % options.size;
-        }
-        if (Gdx.input.isKeyJustPressed(Keys.W)) {
-            selectedIndex = (selectedIndex - 1 + options.size) % options.size;
         }
 
         for (int i = 0; i < options.size; i++) {
@@ -94,6 +87,23 @@ public class CombatScreen implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
     }
 
+    private void createMenu() {
+        options = new Array<Label>();
+
+        Table mainTable = new Table();
+        mainTable.setFillParent(true);
+        mainTable.bottom().left().padBottom(10);
+
+        for (String action : actions) {
+            Label label = new Label(action, game.skin);
+            label.setAlignment(Align.left);
+            mainTable.add(label).left().pad(3).row();
+            options.add(label);
+        }
+
+        stage.addActor(mainTable);
+    }
 }

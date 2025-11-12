@@ -1,7 +1,5 @@
 package com.gabo.gameoff.stages;
 
-import java.util.List;
-
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -33,10 +31,4 @@ public class GameStage extends Stage {
         addActor(playerGroup);
     }
 
-    public void showDialogues(List<String> lines) {
-        game.showDialogues(lines);
-    }
-
-    public void changeMap() {
-    }
 }
