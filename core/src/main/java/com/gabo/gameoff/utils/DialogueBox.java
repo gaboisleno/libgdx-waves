@@ -45,7 +45,7 @@ public class DialogueBox extends Table {
         dialogTable.add(textLabel)
                 .width(Core.VIEW_WIDTH)
                 .height(Core.VIEW_HEIGHT / 3)
-                .padBottom(0f);
+                .pad(10);
 
         // Background for table
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);

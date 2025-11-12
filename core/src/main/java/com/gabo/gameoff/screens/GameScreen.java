@@ -3,10 +3,12 @@ package com.gabo.gameoff.screens;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.gabo.gameoff.Core;
 import com.gabo.gameoff.assets.Assets;
 import com.gabo.gameoff.stages.GameStage;
 import com.gabo.gameoff.stages.GuiStage;
@@ -20,9 +22,11 @@ public class GameScreen implements Screen {
     public GameStage stage;
     public GuiStage guiStage;
     public Assets assets;
+    private Core core;
 
-    public GameScreen(Assets assets) {
+    public GameScreen(Assets assets, Core core) {
         this.assets = assets;
+        this.core = core;
 
         stage = new GameStage(this);
         guiStage = new GuiStage(this);
@@ -49,6 +53,10 @@ public class GameScreen implements Screen {
 
         guiStage.act(delta);
         guiStage.draw();
+
+        if (Gdx.input.isKeyJustPressed(Keys.C)) {
+            showCombatScreen();
+        }
     }
 
     @Override
@@ -77,5 +85,13 @@ public class GameScreen implements Screen {
 
     public void showDialogues(List<String> dialogues) {
         guiStage.setDialogues(dialogues);
+    }
+
+    public void showCombatScreen() {
+        core.setScreen(new CombatScreen(this));
+    }
+
+    public void hideCombatScreen() {
+        core.setScreen(this);
     }
 }

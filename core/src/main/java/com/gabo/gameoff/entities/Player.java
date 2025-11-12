@@ -22,7 +22,7 @@ public class Player extends Actor {
     private Direction direction = Direction.DOWN;
 
     public Player(Assets assets) {
-        setBounds(0, 0, Core.CELL_WIDTH, Core.CELL_HEIGHT);
+        setBounds(0, 0, Core.CELL_WIDTH - 4, Core.CELL_HEIGHT - 4);
 
         animatedSprite = new AnimatedSprite(assets.getAtlas(Atlases.player));
         animatedSprite.setAnimation("idle");
@@ -59,7 +59,7 @@ public class Player extends Actor {
             setIdleAnimation();
         }
 
-        if (Gdx.input.isKeyPressed(Keys.ENTER) || Gdx.input.isKeyPressed(Keys.SPACE)) {
+        if (Gdx.input.isKeyPressed(Keys.ENTER)) {
             interact();
         }
 
