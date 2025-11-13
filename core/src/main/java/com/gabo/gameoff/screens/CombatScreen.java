@@ -3,9 +3,9 @@ package com.gabo.gameoff.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
@@ -18,18 +18,19 @@ public class CombatScreen implements Screen {
     Stage stage;
 
     private int selectedIndex = 0;
-    private String[] actions = { "FIGHT", "RUN", "SPELL", "ITEMS" };
+    private Label cursorLabel;
+    private String[] actions = { "Fight", "Spell", "Items", "Run" };
     private Array<Label> options;
 
     // Example
-    private Array<Actor> allies; // allies {name, hp, mp, spells[], attacks[]}
-    private Array<Actor> foes;
+    private Array<Actor> heroes; // allies {name, hp, mp, spells[], attacks[]}
+    private Array<Actor> enemies;
 
     public CombatScreen(GameScreen previousScreen) {
 
         this.game = previousScreen;
         stage = new Stage();
-        stage.setDebugAll(true);
+        stage.setDebugAll(false);
 
         createMenu();
     }
@@ -43,7 +44,7 @@ public class CombatScreen implements Screen {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
 
         if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
-            if (selectedIndex == 1) {
+            if (selectedIndex == 3) {
                 game.hideCombatScreen();
             }
         }
@@ -59,9 +60,9 @@ public class CombatScreen implements Screen {
         for (int i = 0; i < options.size; i++) {
             Label label = options.get(i);
             if (i == selectedIndex) {
-                label.setColor(Color.YELLOW);
-            } else {
-                label.setColor(Color.WHITE);
+                cursorLabel.setPosition(
+                        label.getX() - cursorLabel.getWidth() - 8,
+                        label.getY());
             }
         }
 
@@ -93,9 +94,18 @@ public class CombatScreen implements Screen {
     private void createMenu() {
         options = new Array<Label>();
 
+        cursorLabel = new Label(">", game.skin);
+        cursorLabel.addAction(Actions.forever(
+                Actions.sequence(
+                        Actions.visible(false),
+                        Actions.delay(0.25f),
+                        Actions.visible(true),
+                        Actions.delay(0.25f))));
+        stage.addActor(cursorLabel);
+
         Table mainTable = new Table();
         mainTable.setFillParent(true);
-        mainTable.bottom().left().padBottom(10);
+        mainTable.bottom().left().padLeft(40).padBottom(20);
 
         for (String action : actions) {
             Label label = new Label(action, game.skin);

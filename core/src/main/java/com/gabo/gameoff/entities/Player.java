@@ -59,7 +59,7 @@ public class Player extends Actor {
             setIdleAnimation();
         }
 
-        if (Gdx.input.isKeyPressed(Keys.ENTER)) {
+        if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
             interact();
         }
 
