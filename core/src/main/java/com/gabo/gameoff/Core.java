@@ -13,7 +13,7 @@ public class Core extends Game {
     public static final int CELL_HEIGHT = 16;
 
     public static final int VIEW_WIDTH = 320;
-    public static final int VIEW_HEIGHT = 180;
+    public static final int VIEW_HEIGHT = 240;
 
     public static boolean DEBUG = false;
 

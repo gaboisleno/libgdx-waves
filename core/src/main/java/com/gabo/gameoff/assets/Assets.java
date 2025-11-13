@@ -3,6 +3,7 @@ package com.gabo.gameoff.assets;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class Assets {
     private final AssetManager manager;
@@ -45,5 +46,13 @@ public class Assets {
 
     public TextureAtlas getAtlas(Atlases atlas) {
         return manager.get(atlas.getPath(), TextureAtlas.class);
+    }
+
+    public void loadSkin() {
+        manager.load("custom-skin/uiskin.json", Skin.class);
+    }
+
+    public Skin getSkin() {
+        return manager.get("custom-skin/uiskin.json", Skin.class);
     }
 }

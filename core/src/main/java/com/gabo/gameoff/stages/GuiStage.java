@@ -21,12 +21,12 @@ public class GuiStage extends Stage {
 
         OrthographicCamera cam = (OrthographicCamera) getCamera();
         cam.position.set(Core.VIEW_WIDTH / 2f, Core.VIEW_HEIGHT / 2f, 0f);
-        cam.zoom = 1.25f;
         cam.update();
 
         // setDebugAll(Core.DEBUG);
 
         dialogueBox = new DialogueBox(game.skin);
+
         addActor(dialogueBox);
 
         addListener(new InputListener() {

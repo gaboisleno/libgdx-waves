@@ -17,7 +17,7 @@ import com.gabo.gameoff.stages.GuiStage;
  * First screen of the application. Displayed after the application is created.
  */
 public class GameScreen implements Screen {
-    public Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
+    public Skin skin;
 
     public GameStage stage;
     public GuiStage guiStage;
@@ -25,8 +25,9 @@ public class GameScreen implements Screen {
     private Core core;
 
     public GameScreen(Assets assets, Core core) {
-        this.assets = assets;
         this.core = core;
+        this.assets = assets;
+        this.skin = assets.getSkin();
 
         stage = new GameStage(this);
         guiStage = new GuiStage(this);

@@ -43,7 +43,7 @@ public class Npc extends Actor {
 
     public void interact() {
         GameStage stage = (GameStage) getStage();
-        // stage.game.showDialogues(dialogues);
-        stage.game.showCombatScreen();
+        stage.game.showDialogues(dialogues);
+        // stage.game.showCombatScreen();
     }
 }

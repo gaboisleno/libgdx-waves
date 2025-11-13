@@ -3,13 +3,10 @@ package com.gabo.gameoff.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.gabo.gameoff.Core;
 
@@ -27,9 +24,11 @@ public class DialogueBox extends Table {
     List<String> lines = new ArrayList<>();
     int currentLine = 0;
 
+    NinePatch patch;
+
     public DialogueBox(Skin skin) {
         super(skin);
-        setDebug(Core.DEBUG);
+        // setDebug(true);
         setFillParent(true);
         setVisible(false);
 
@@ -43,21 +42,24 @@ public class DialogueBox extends Table {
         // Config internal table
         dialogTable.top();
         dialogTable.add(textLabel)
-                .width(Core.VIEW_WIDTH)
-                .height(Core.VIEW_HEIGHT / 3)
-                .pad(10);
+                .width(Core.VIEW_WIDTH - 80f)
+                .height(48f)
+                .pad(10f)
+                .top()
+                .left();
 
         // Background for table
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(0.1f, 0.1f, 0.5f, .8f);
-        pixmap.fill();
+        dialogTable.setBackground(skin.getDrawable("dialogue"));
 
-        Texture texture = new Texture(pixmap);
-        pixmap.dispose();
+        float margin = 20f;
 
-        dialogTable.setBackground(new TextureRegionDrawable(new TextureRegion(texture)));
-
-        bottom().add(dialogTable).expandX();
+        bottom()
+                .padBottom(margin)
+                .padLeft(margin)
+                .padRight(margin)
+                .add(dialogTable)
+                .expandX()
+                .fillX();
     }
 
     public void setDialogue(String text) {
