@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -20,9 +19,8 @@ public class CombatScreen implements Screen {
     Stage stage;
 
     private int selectedIndex = 0;
-    private Label cursorLabel;
     private String[] actions = { "Fight", "Spell", "Items", "Run" };
-    private Array<Label> options;
+    private Array<Label> options, cursors;
 
     // Example
     private Array<Actor> heroes; // allies {name, hp, mp, spells[], attacks[]}
@@ -59,13 +57,8 @@ public class CombatScreen implements Screen {
             selectedIndex = (selectedIndex + 1) % options.size;
         }
 
-        for (int i = 0; i < options.size; i++) {
-            Label label = options.get(i);
-            if (i == selectedIndex) {
-                cursorLabel.setPosition(
-                        label.getX() - cursorLabel.getWidth(),
-                        label.getY());
-            }
+        for (int i = 0; i < cursors.size; i++) {
+            cursors.get(i).setVisible(i == selectedIndex);
         }
 
         stage.act();
@@ -95,15 +88,7 @@ public class CombatScreen implements Screen {
 
     private void createMenu() {
         options = new Array<Label>();
-
-        cursorLabel = new Label(">", game.skin);
-        cursorLabel.addAction(Actions.forever(
-                Actions.sequence(
-                        Actions.visible(false),
-                        Actions.delay(0.25f),
-                        Actions.visible(true),
-                        Actions.delay(0.25f))));
-        stage.addActor(cursorLabel);
+        cursors = new Array<Label>();
 
         Table mainTable = new Table();
         mainTable.setFillParent(true);
@@ -115,9 +100,23 @@ public class CombatScreen implements Screen {
         mainTable.add(optionsTable);
 
         for (String action : actions) {
+
+            Label cursor = new Label(">", game.skin);
+
+            cursor.addAction(Actions.forever(
+                    Actions.sequence(
+                            Actions.alpha(0f),
+                            Actions.delay(0.25f),
+                            Actions.alpha(1f),
+                            Actions.delay(0.25f))));
+            cursor.setVisible(false);
+
             Label label = new Label(action, game.skin);
-            label.setAlignment(Align.left);
-            optionsTable.add(label).left().row();
+
+            optionsTable.add(cursor).padLeft(5).padRight(5);
+            optionsTable.add(label).left().padRight(10).row();
+
+            cursors.add(cursor);
             options.add(label);
         }
 
