@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.gabo.gameoff.Core;
 
 public class CombatScreen implements Screen {
 
@@ -29,7 +31,7 @@ public class CombatScreen implements Screen {
     public CombatScreen(GameScreen previousScreen) {
 
         this.game = previousScreen;
-        stage = new Stage();
+        stage = new Stage(new FitViewport(Core.VIEW_WIDTH, Core.VIEW_HEIGHT));
         stage.setDebugAll(false);
 
         createMenu();
@@ -61,7 +63,7 @@ public class CombatScreen implements Screen {
             Label label = options.get(i);
             if (i == selectedIndex) {
                 cursorLabel.setPosition(
-                        label.getX() - cursorLabel.getWidth() - 8,
+                        label.getX() - cursorLabel.getWidth(),
                         label.getY());
             }
         }
@@ -105,12 +107,17 @@ public class CombatScreen implements Screen {
 
         Table mainTable = new Table();
         mainTable.setFillParent(true);
-        mainTable.bottom().left().padLeft(40).padBottom(20);
+
+        Table optionsTable = new Table();
+        optionsTable.background(game.skin.getDrawable("dialogue"));
+
+        mainTable.bottom().left().padLeft(20).padBottom(20);
+        mainTable.add(optionsTable);
 
         for (String action : actions) {
             Label label = new Label(action, game.skin);
             label.setAlignment(Align.left);
-            mainTable.add(label).left().pad(3).row();
+            optionsTable.add(label).left().row();
             options.add(label);
         }
 
