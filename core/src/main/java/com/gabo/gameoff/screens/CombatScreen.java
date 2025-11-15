@@ -1,38 +1,40 @@
+/*
+ * @gaboisleno
+*/
 package com.gabo.gameoff.screens;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.gabo.gameoff.Core;
+import com.gabo.gameoff.utils.OptionsTable;
 
 public class CombatScreen implements Screen {
 
     GameScreen game;
     Stage stage;
 
-    private int selectedIndex = 0;
-    private String[] actions = { "Fight", "Spell", "Items", "Run" };
-    private Array<Label> options, cursors;
-
     // Example
-    private Array<Actor> heroes; // allies {name, hp, mp, spells[], attacks[]}
-    private Array<Actor> enemies;
+    private String[] actions = { "Fight", "Spell", "Items", "Run" };
+    private String[] enemies = { "Goblin", "Slime", "Zombie" };
+
+    Table mainTable;
+    OptionsTable enemyTable;
+    OptionsTable actionsTable;
 
     public CombatScreen(GameScreen previousScreen) {
-
         this.game = previousScreen;
         stage = new Stage(new FitViewport(Core.VIEW_WIDTH, Core.VIEW_HEIGHT));
         stage.setDebugAll(false);
 
-        createMenu();
+        mainTable = new Table();
+        mainTable.setFillParent(true);
+        stage.addActor(mainTable);
+
+        addActionListTable();
+        addEnemyListTable();
     }
 
     @Override
@@ -42,24 +44,6 @@ public class CombatScreen implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
-
-        if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
-            if (selectedIndex == 3) {
-                game.hideCombatScreen();
-            }
-        }
-
-        if (Gdx.input.isKeyJustPressed(Keys.W)) {
-            selectedIndex = (selectedIndex - 1 + options.size) % options.size;
-        }
-
-        if (Gdx.input.isKeyJustPressed(Keys.S)) {
-            selectedIndex = (selectedIndex + 1) % options.size;
-        }
-
-        for (int i = 0; i < cursors.size; i++) {
-            cursors.get(i).setVisible(i == selectedIndex);
-        }
 
         stage.act();
         stage.draw();
@@ -86,40 +70,37 @@ public class CombatScreen implements Screen {
         stage.dispose();
     }
 
-    private void createMenu() {
-        options = new Array<Label>();
-        cursors = new Array<Label>();
+    private void addActionListTable() {
+        mainTable.bottom().left();
+        actionsTable = new OptionsTable(actions, game.skin);
 
-        Table mainTable = new Table();
-        mainTable.setFillParent(true);
+        // // TODO make this dynamic
 
-        Table optionsTable = new Table();
-        optionsTable.background(game.skin.getDrawable("dialogue"));
+        // attack option
+        actionsTable.setCallback(0, () -> {
+            actionsTable.setFocus(false);
+            enemyTable.setFocus(true);
+            return;
+        });
 
-        mainTable.bottom().left().padLeft(20).padBottom(20);
-        mainTable.add(optionsTable);
+        // run option
+        actionsTable.setCallback(3, () -> {
+            game.hideCombatScreen();
+            return;
+        });
 
-        for (String action : actions) {
+        actionsTable.setFocus(true);
+        mainTable.add(actionsTable);
+    }
 
-            Label cursor = new Label(">", game.skin);
+    private void addEnemyListTable() {
+        enemyTable = new OptionsTable(enemies, game.skin);
+        // TODO make this dynamic
+        enemyTable.setCallback(0, () -> {
+            actionsTable.setFocus(true);
+            enemyTable.setFocus(false);
+        });
 
-            cursor.addAction(Actions.forever(
-                    Actions.sequence(
-                            Actions.alpha(0f),
-                            Actions.delay(0.25f),
-                            Actions.alpha(1f),
-                            Actions.delay(0.25f))));
-            cursor.setVisible(false);
-
-            Label label = new Label(action, game.skin);
-
-            optionsTable.add(cursor).padLeft(5).padRight(5);
-            optionsTable.add(label).left().padRight(10).row();
-
-            cursors.add(cursor);
-            options.add(label);
-        }
-
-        stage.addActor(mainTable);
+        mainTable.add(enemyTable).expandX().fillX();
     }
 }

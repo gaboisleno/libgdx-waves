@@ -98,7 +98,7 @@
 					"height": 16,
 					"defUid": 8,
 					"px": [96,48],
-					"fieldInstances": [{ "__identifier": "city", "__type": "String", "__value": "rosario", "__tile": null, "defUid": 18, "realEditorValues": [] }],
+					"fieldInstances": [],
 					"__worldX": 368,
 					"__worldY": 48
 				},
@@ -106,7 +106,7 @@
 					"__identifier": "Npc",
 					"__grid": [10,9],
 					"__pivot": [0,0],
-					"__tags": [],
+					"__tags": ["npc"],
 					"__tile": null,
 					"__smartColor": "#FEAE34",
 					"iid": "e80fd4f0-ac70-11f0-80a9-c93c1addd49e",
