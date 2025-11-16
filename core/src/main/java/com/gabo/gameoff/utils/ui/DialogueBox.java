@@ -1,4 +1,4 @@
-package com.gabo.gameoff.utils;
+package com.gabo.gameoff.utils.ui;
 
 import java.util.ArrayList;
 import java.util.List;

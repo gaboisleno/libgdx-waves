@@ -1,4 +1,4 @@
-package com.gabo.gameoff.utils;
+package com.gabo.gameoff.utils.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -8,35 +8,45 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 
-public class OptionsTable extends Table {
+public class OptionsTable<T> extends Table {
     private Array<Label> cursors = new Array<Label>();
-    private Array<Label> options = new Array<Label>();
 
+    private Array<T> options = new Array<>();
     private boolean focused = false;
     private int selectedIndex = 0;
     private Array<Runnable> callbacks = new Array<>();
 
     private float keyCooldown = 0f;
 
-    public OptionsTable(String[] opts, Skin skin) {
+    private ItemRenderer<T> renderer;
+    Skin skin;
+
+    public OptionsTable(Array<T> items, Skin skin, ItemRenderer<T> renderer) {
+        this.options = items;
+        this.renderer = renderer;
+        this.skin = skin;
         background(skin.getDrawable("dialogue"));
+        buildRows();
+    }
 
-        for (String opt : opts) {
+    private void buildRows() {
+        for (T opt : options) {
+
             Label cursor = new Label(">", skin);
-            Label option = new Label(opt, skin);
-
             cursor.addAction(Actions.forever(
                     Actions.sequence(
                             Actions.alpha(0f),
-                            Actions.delay(0.25f),
+                            Actions.delay(0.1f),
                             Actions.alpha(1f),
-                            Actions.delay(0.25f))));
+                            Actions.delay(0.1f))));
 
             add(cursor).padLeft(5).padRight(5);
-            add(option).left().padRight(10).row();
-
             cursors.add(cursor);
-            options.add(option);
+
+            renderer.render(this, opt);
+
+            row();
+
             callbacks.add(null);
         }
     }

@@ -5,24 +5,43 @@ package com.gabo.gameoff.screens;
 
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.gabo.gameoff.Core;
-import com.gabo.gameoff.utils.OptionsTable;
+import com.gabo.gameoff.entities.Enemy;
+import com.gabo.gameoff.utils.ui.OptionsTable;
 
 public class CombatScreen implements Screen {
 
     GameScreen game;
     Stage stage;
 
-    // Example
-    private String[] actions = { "Fight", "Spell", "Items", "Run" };
-    private String[] enemies = { "Goblin", "Slime", "Zombie" };
+    private Array<String> actions = new Array<>();
+    {
+        actions.add("Fight");
+        actions.add("Spell");
+        actions.add("Items");
+        actions.add("Run");
+    }
 
     Table mainTable;
-    OptionsTable enemyTable;
-    OptionsTable actionsTable;
+    OptionsTable<Enemy> enemyTable;
+    OptionsTable<String> actionsTable;
+
+    OptionsTable<?> currentTable;
+
+    public enum CombatState {
+        PLAYER_CHOOSE_ACTION,
+        PLAYER_CHOOSE_TARGET,
+        ENEMY_TURN,
+        RUN,
+        END
+    }
+
+    private CombatState state = CombatState.PLAYER_CHOOSE_ACTION;
 
     public CombatScreen(GameScreen previousScreen) {
         this.game = previousScreen;
@@ -44,6 +63,29 @@ public class CombatScreen implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
+
+        switch (state) {
+
+            case PLAYER_CHOOSE_ACTION:
+                // wait selection
+                break;
+
+            case PLAYER_CHOOSE_TARGET:
+                // select enemy
+                break;
+
+            case ENEMY_TURN:
+                // enemy attacks
+                break;
+
+            case RUN:
+                // run
+                break;
+
+            case END:
+                // end combat
+                break;
+        }
 
         stage.act();
         stage.draw();
@@ -71,36 +113,55 @@ public class CombatScreen implements Screen {
     }
 
     private void addActionListTable() {
-        mainTable.bottom().left();
-        actionsTable = new OptionsTable(actions, game.skin);
+        mainTable.bottom().pad(10);
 
-        // // TODO make this dynamic
+        actionsTable = new OptionsTable<>(actions, game.skin, (table, item) -> {
+            table.add(new Label(item, game.skin)).left().padRight(10);
+        });
 
         // attack option
         actionsTable.setCallback(0, () -> {
-            actionsTable.setFocus(false);
-            enemyTable.setFocus(true);
+            state = CombatState.PLAYER_CHOOSE_TARGET;
+            focusTable(enemyTable);
             return;
         });
 
         // run option
         actionsTable.setCallback(3, () -> {
+            state = CombatState.RUN;
             game.hideCombatScreen();
             return;
         });
-
-        actionsTable.setFocus(true);
         mainTable.add(actionsTable);
+        focusTable(actionsTable);
     }
 
     private void addEnemyListTable() {
-        enemyTable = new OptionsTable(enemies, game.skin);
-        // TODO make this dynamic
-        enemyTable.setCallback(0, () -> {
-            actionsTable.setFocus(true);
-            enemyTable.setFocus(false);
+        Array<Enemy> enemies = new Array<>();
+        enemies.add(new Enemy("Goblin", 30));
+        enemies.add(new Enemy("Slime", 15));
+        enemies.add(new Enemy("Skeleton", 10));
+
+        enemyTable = new OptionsTable<Enemy>(enemies, game.skin, (table, enemy) -> {
+            table.add(new Label(enemy.name, game.skin)).left().padRight(10);
+            table.add(new Label(enemy.hp + " / " + enemy.maxHp, game.skin));
         });
 
-        mainTable.add(enemyTable).expandX().fillX();
+        for (int i = 0; i < enemies.size; i++) {
+            enemyTable.setCallback(i, () -> {
+                // apply enemy damage
+                focusTable(actionsTable);
+            });
+        }
+
+        mainTable.add(enemyTable).expandX().fillX().bottom();
+    }
+
+    public void focusTable(OptionsTable<?> table) {
+        if (currentTable != null) {
+            currentTable.setFocus(false);
+        }
+        table.setFocus(true);
+        currentTable = table;
     }
 }

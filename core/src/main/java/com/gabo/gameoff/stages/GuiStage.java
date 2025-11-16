@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.gabo.gameoff.Core;
 import com.gabo.gameoff.screens.GameScreen;
-import com.gabo.gameoff.utils.DialogueBox;
+import com.gabo.gameoff.utils.ui.DialogueBox;
 
 public class GuiStage extends Stage {
     public DialogueBox dialogueBox;
