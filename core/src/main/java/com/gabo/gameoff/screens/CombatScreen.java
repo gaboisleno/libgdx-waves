@@ -18,6 +18,8 @@ public class CombatScreen implements Screen {
 
     GameScreen game;
     Stage stage;
+    Array<Enemy> enemies = new Array<>();
+    Array<Enemy> heroes = new Array<>();
 
     private Array<String> actions = new Array<>();
     {
@@ -28,7 +30,8 @@ public class CombatScreen implements Screen {
     }
 
     Table mainTable;
-    OptionsTable<Enemy> enemyTable;
+    OptionsTable<Enemy> enemiesTable;
+    OptionsTable<Enemy> heroesTable;
     OptionsTable<String> actionsTable;
 
     OptionsTable<?> currentTable;
@@ -52,8 +55,24 @@ public class CombatScreen implements Screen {
         mainTable.setFillParent(true);
         stage.addActor(mainTable);
 
-        addActionListTable();
-        addEnemyListTable();
+        prepareEnemyListTable();
+        prepareActionListTable();
+        prepareHeroListTable();
+
+        buildLayout();
+
+        focusTable(heroesTable);
+    }
+
+    private void buildLayout() {
+        mainTable.add(enemiesTable)
+                .expandX()
+                .fillX()
+                .minHeight(Core.VIEW_HEIGHT / 2f)
+                .colspan(2);
+        mainTable.row();
+        mainTable.add(actionsTable).bottom();
+        mainTable.add(heroesTable).expandX().fillX().bottom();
     }
 
     @Override
@@ -112,9 +131,7 @@ public class CombatScreen implements Screen {
         stage.dispose();
     }
 
-    private void addActionListTable() {
-        mainTable.bottom().pad(10);
-
+    private void prepareActionListTable() {
         actionsTable = new OptionsTable<>(actions, game.skin, (table, item) -> {
             table.add(new Label(item, game.skin)).left().padRight(10);
         });
@@ -122,7 +139,7 @@ public class CombatScreen implements Screen {
         // attack option
         actionsTable.setCallback(0, () -> {
             state = CombatState.PLAYER_CHOOSE_TARGET;
-            focusTable(enemyTable);
+            focusTable(enemiesTable);
             return;
         });
 
@@ -132,29 +149,44 @@ public class CombatScreen implements Screen {
             game.hideCombatScreen();
             return;
         });
-        mainTable.add(actionsTable);
-        focusTable(actionsTable);
     }
 
-    private void addEnemyListTable() {
-        Array<Enemy> enemies = new Array<>();
+    private void prepareHeroListTable() {
+        heroes.add(new Enemy("Warrior", 30));
+        heroes.add(new Enemy("Mage", 20));
+
+        heroesTable = new OptionsTable<Enemy>(heroes, game.skin, (table, hero) -> {
+            Label name = new Label(hero.name, game.skin);
+            Label hp = new Label(hero.hp + " / " + hero.maxHp, game.skin);
+            table.add(name).left().padRight(10);
+            table.add(hp);
+        });
+        for (int i = 0; i < heroes.size; i++) {
+            heroesTable.setCallback(i, () -> {
+                focusTable(actionsTable);
+            });
+        }
+    }
+
+    private void prepareEnemyListTable() {
         enemies.add(new Enemy("Goblin", 30));
         enemies.add(new Enemy("Slime", 15));
         enemies.add(new Enemy("Skeleton", 10));
 
-        enemyTable = new OptionsTable<Enemy>(enemies, game.skin, (table, enemy) -> {
-            table.add(new Label(enemy.name, game.skin)).left().padRight(10);
-            table.add(new Label(enemy.hp + " / " + enemy.maxHp, game.skin));
+        enemiesTable = new OptionsTable<Enemy>(enemies, game.skin, (table, enemy) -> {
+            Label name = new Label(enemy.name, game.skin);
+            table.add(name).left().padRight(10);
         });
 
         for (int i = 0; i < enemies.size; i++) {
-            enemyTable.setCallback(i, () -> {
-                // apply enemy damage
-                focusTable(actionsTable);
+            int index = i;
+            enemiesTable.setCallback(i, () -> {
+                Enemy enemy = enemies.get(index);
+                enemy.applyDamage();
+                enemiesTable.refresh();
+                focusTable(heroesTable);
             });
         }
-
-        mainTable.add(enemyTable).expandX().fillX().bottom();
     }
 
     public void focusTable(OptionsTable<?> table) {

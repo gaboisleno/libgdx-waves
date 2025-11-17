@@ -31,24 +31,23 @@ public class OptionsTable<T> extends Table {
 
     private void buildRows() {
         for (T opt : options) {
-
             Label cursor = new Label(">", skin);
-            cursor.addAction(Actions.forever(
-                    Actions.sequence(
-                            Actions.alpha(0f),
-                            Actions.delay(0.1f),
-                            Actions.alpha(1f),
-                            Actions.delay(0.1f))));
-
+            addCursorAnimation(cursor);
             add(cursor).padLeft(5).padRight(5);
             cursors.add(cursor);
-
             renderer.render(this, opt);
-
             row();
-
             callbacks.add(null);
         }
+    }
+
+    private void addCursorAnimation(Label cursor) {
+        cursor.addAction(Actions.forever(
+                Actions.sequence(
+                        Actions.alpha(0f),
+                        Actions.delay(0.2f),
+                        Actions.alpha(1f),
+                        Actions.delay(0.2f))));
     }
 
     @Override
@@ -92,5 +91,19 @@ public class OptionsTable<T> extends Table {
 
     public void setCallback(int index, Runnable callback) {
         callbacks.set(index, callback);
+    }
+
+    public void refresh() {
+        clearChildren();
+        cursors.clear();
+        for (T opt : options) {
+            Label cursor = new Label(">", skin);
+            addCursorAnimation(cursor);
+            add(cursor).padLeft(5).padRight(5);
+            cursor.setVisible(false);
+            cursors.add(cursor);
+            renderer.render(this, opt);
+            row();
+        }
     }
 }
