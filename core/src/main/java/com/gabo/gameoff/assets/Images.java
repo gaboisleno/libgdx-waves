@@ -1,11 +1,9 @@
 package com.gabo.gameoff.assets;
 
 public enum Images {
-    alien_egg,
-    ship,
-    space;
+    creature_058;
 
     public String getPath() {
-        return "images/" + name() + ".png";
+        return "sprites/" + name() + ".png";
     }
 }

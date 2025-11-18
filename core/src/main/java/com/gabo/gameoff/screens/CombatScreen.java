@@ -3,76 +3,33 @@
 */
 package com.gabo.gameoff.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.gabo.gameoff.Core;
-import com.gabo.gameoff.entities.Enemy;
-import com.gabo.gameoff.utils.ui.OptionsTable;
+import com.gabo.gameoff.entities.BaseUnit;
+import com.gabo.gameoff.utils.combat.CombatManager;
+import com.gabo.gameoff.utils.combat.CombatManager.CombatState;
+import com.gabo.gameoff.utils.combat.CombatUI;
+import com.gabo.gameoff.utils.combat.CombatUI.UIListener;
+import com.gabo.gameoff.utils.combat.Turn;
 
-public class CombatScreen implements Screen {
-
+public class CombatScreen implements Screen, UIListener {
     GameScreen game;
-    Stage stage;
-    Array<Enemy> enemies = new Array<>();
-    Array<Enemy> heroes = new Array<>();
+    public Stage stage;
 
-    private Array<String> actions = new Array<>();
-    {
-        actions.add("Fight");
-        actions.add("Spell");
-        actions.add("Items");
-        actions.add("Run");
-    }
-
-    Table mainTable;
-    OptionsTable<Enemy> enemiesTable;
-    OptionsTable<Enemy> heroesTable;
-    OptionsTable<String> actionsTable;
-
-    OptionsTable<?> currentTable;
-
-    public enum CombatState {
-        PLAYER_CHOOSE_ACTION,
-        PLAYER_CHOOSE_TARGET,
-        ENEMY_TURN,
-        RUN,
-        END
-    }
-
-    private CombatState state = CombatState.PLAYER_CHOOSE_ACTION;
+    public CombatManager combatManager;
+    public CombatUI ui;
 
     public CombatScreen(GameScreen previousScreen) {
-        this.game = previousScreen;
+        game = previousScreen;
         stage = new Stage(new FitViewport(Core.VIEW_WIDTH, Core.VIEW_HEIGHT));
-        stage.setDebugAll(false);
 
-        mainTable = new Table();
-        mainTable.setFillParent(true);
-        stage.addActor(mainTable);
-
-        prepareEnemyListTable();
-        prepareActionListTable();
-        prepareHeroListTable();
-
-        buildLayout();
-
-        focusTable(heroesTable);
-    }
-
-    private void buildLayout() {
-        mainTable.add(enemiesTable)
-                .expandX()
-                .fillX()
-                .minHeight(Core.VIEW_HEIGHT / 2f)
-                .colspan(2);
-        mainTable.row();
-        mainTable.add(actionsTable).bottom();
-        mainTable.add(heroesTable).expandX().fillX().bottom();
+        combatManager = new CombatManager();
+        ui = new CombatUI(this, stage, game.assets);
     }
 
     @Override
@@ -83,22 +40,44 @@ public class CombatScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
 
-        switch (state) {
+        switch (combatManager.state) {
 
             case PLAYER_CHOOSE_ACTION:
-                // wait selection
                 break;
 
             case PLAYER_CHOOSE_TARGET:
-                // select enemy
                 break;
 
             case ENEMY_TURN:
-                // enemy attacks
+                // do random enemy attacks
+                for (BaseUnit enemy : combatManager.enemies) {
+                    combatManager.addTurn(enemy,
+                            combatManager.heroes.get(MathUtils.random(combatManager.heroes.size - 1)));
+                }
+                for (BaseUnit hero : combatManager.heroes) {
+                    hero.disabled = false;
+                }
+
+                combatManager.shuffleTurn();
+                // heroesTable.resetSelection();
+                // heroesTable.clearSelectionHighlight();
+                combatManager.setState(CombatState.COMBAT);
+                break;
+
+            case COMBAT:
+                for (Turn turn : combatManager.getTurn()) {
+                    Gdx.app.log("Turn:", turn.attacker.name + " attacks to " + turn.attacked.name);
+                }
+                // focusTable(actionsTable);
+                combatManager.clearTurn();
+                combatManager.setState(CombatState.PLAYER_CHOOSE_ACTION);
+                break;
+
+            case COMBAT_RESULT:
                 break;
 
             case RUN:
-                // run
+                // try to scape
                 break;
 
             case END:
@@ -131,69 +110,44 @@ public class CombatScreen implements Screen {
         stage.dispose();
     }
 
-    private void prepareActionListTable() {
-        actionsTable = new OptionsTable<>(actions, game.skin, (table, item) -> {
-            table.add(new Label(item, game.skin)).left().padRight(10);
-        });
+    @Override
+    public void onActionSelected(String action) {
+        // combatManager.setState(CombatState.PLAYER_CHOOSE_TARGET);
+        combatManager.selectedHero = ui.getFocusedHero();
+        ui.focusEnemy();
+    }
 
-        // attack option
-        actionsTable.setCallback(0, () -> {
-            state = CombatState.PLAYER_CHOOSE_TARGET;
-            focusTable(enemiesTable);
+    @Override
+    public void onEnemySelected(BaseUnit enemy) {
+        combatManager.selectedEnemy = enemy;
+        combatManager.selectedHero.disabled = true;
+        combatManager.addTurn();
+
+        if (combatManager.allHeroesPlayed()) {
+            combatManager.setState(CombatState.ENEMY_TURN);
             return;
-        });
+        }
 
-        // run option
-        actionsTable.setCallback(3, () -> {
-            state = CombatState.RUN;
-            game.hideCombatScreen();
-            return;
-        });
+        ui.heroesNextIndex();
+        ui.focusActions();
+        return;
     }
 
-    private void prepareHeroListTable() {
-        heroes.add(new Enemy("Warrior", 30));
-        heroes.add(new Enemy("Mage", 20));
-
-        heroesTable = new OptionsTable<Enemy>(heroes, game.skin, (table, hero) -> {
-            Label name = new Label(hero.name, game.skin);
-            Label hp = new Label(hero.hp + " / " + hero.maxHp, game.skin);
-            table.add(name).left().padRight(10);
-            table.add(hp);
-        });
-        for (int i = 0; i < heroes.size; i++) {
-            heroesTable.setCallback(i, () -> {
-                focusTable(actionsTable);
-            });
-        }
+    @Override
+    public void onHeroSelected(BaseUnit hero) {
+        combatManager.setState(CombatState.PLAYER_CHOOSE_ACTION);
+        combatManager.selectedHero = hero;
+        ui.focusActions();
     }
 
-    private void prepareEnemyListTable() {
-        enemies.add(new Enemy("Goblin", 30));
-        enemies.add(new Enemy("Slime", 15));
-        enemies.add(new Enemy("Skeleton", 10));
-
-        enemiesTable = new OptionsTable<Enemy>(enemies, game.skin, (table, enemy) -> {
-            Label name = new Label(enemy.name, game.skin);
-            table.add(name).left().padRight(10);
-        });
-
-        for (int i = 0; i < enemies.size; i++) {
-            int index = i;
-            enemiesTable.setCallback(i, () -> {
-                Enemy enemy = enemies.get(index);
-                enemy.applyDamage();
-                enemiesTable.refresh();
-                focusTable(heroesTable);
-            });
-        }
+    @Override
+    public void onRunSelected() {
+        combatManager.setState(CombatState.RUN);
+        game.hideCombatScreen();
     }
 
-    public void focusTable(OptionsTable<?> table) {
-        if (currentTable != null) {
-            currentTable.setFocus(false);
-        }
-        table.setFocus(true);
-        currentTable = table;
+    @Override
+    public void allHeroesFinished() {
+        combatManager.setState(CombatState.ENEMY_TURN);
     }
 }

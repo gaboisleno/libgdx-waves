@@ -9,17 +9,21 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 
 public class OptionsTable<T> extends Table {
-    private Array<Label> cursors = new Array<Label>();
+    protected static class Row {
+        Label cursor;
+        Array<Label> labels = new Array<>();
+    }
 
-    private Array<T> options = new Array<>();
-    private boolean focused = false;
-    private int selectedIndex = 0;
-    private Array<Runnable> callbacks = new Array<>();
+    protected Array<T> options = new Array<>();
+    protected Array<Runnable> callbacks = new Array<>();
+    public Array<Row> rows = new Array<>();
 
-    private float keyCooldown = 0f;
+    protected ItemRenderer<T> renderer;
+    public Skin skin;
 
-    private ItemRenderer<T> renderer;
-    Skin skin;
+    protected boolean focused = false;
+    protected int selectedIndex = 0;
+    protected float keyCooldown = 0;
 
     public OptionsTable(Array<T> items, Skin skin, ItemRenderer<T> renderer) {
         this.options = items;
@@ -27,54 +31,62 @@ public class OptionsTable<T> extends Table {
         this.skin = skin;
         background(skin.getDrawable("dialogue"));
         buildRows();
+        updateVisualState();
     }
 
     private void buildRows() {
-        for (T opt : options) {
-            Label cursor = new Label(">", skin);
-            addCursorAnimation(cursor);
-            add(cursor).padLeft(5).padRight(5);
-            cursors.add(cursor);
-            renderer.render(this, opt);
-            row();
+        for (int i = 0; i < options.size; i++) {
+            Row row = new Row();
+            rows.add(row);
             callbacks.add(null);
+
+            row.cursor = new Label(">", skin);
+            addCursorAnimation(row.cursor);
+
+            add(row.cursor).pad(0, 5, 0, 5);
+
+            row.labels.add(row.cursor);
+            renderer.render(this, options.get(i), row.labels);
+            row();
         }
     }
 
-    private void addCursorAnimation(Label cursor) {
+    protected void addCursorAnimation(Label cursor) {
         cursor.addAction(Actions.forever(
                 Actions.sequence(
                         Actions.alpha(0f),
-                        Actions.delay(0.2f),
+                        Actions.delay(0.25f),
                         Actions.alpha(1f),
-                        Actions.delay(0.2f))));
+                        Actions.delay(0.25f))));
     }
 
     @Override
     public void act(float delta) {
         super.act(delta);
+
         if (keyCooldown > 0) {
             keyCooldown -= delta;
             return;
         }
-        if (focused) {
-            if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
-                emmitEvent(selectedIndex);
-                return;
-            }
-            if (Gdx.input.isKeyJustPressed(Keys.W)) {
-                selectedIndex = (selectedIndex - 1 + options.size) % options.size;
-            }
-            if (Gdx.input.isKeyJustPressed(Keys.S)) {
-                selectedIndex = (selectedIndex + 1) % options.size;
-            }
-            for (int i = 0; i < cursors.size; i++) {
-                cursors.get(i).setVisible(i == selectedIndex);
-            }
-        } else {
-            for (int i = 0; i < cursors.size; i++) {
-                cursors.get(i).setVisible(false);
-            }
+
+        if (!focused)
+            return;
+
+        // TODO remove input events from here
+        if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
+            emmitEvent(selectedIndex);
+            return;
+        }
+        if (Gdx.input.isKeyJustPressed(Keys.W))
+            prevIndex();
+        if (Gdx.input.isKeyJustPressed(Keys.S))
+            nextIndex();
+    }
+
+    public void updateVisualState() {
+        for (int i = 0; i < rows.size; i++) {
+            Row r = rows.get(i);
+            r.cursor.setVisible(i == selectedIndex && focused);
         }
     }
 
@@ -87,6 +99,7 @@ public class OptionsTable<T> extends Table {
     public void setFocus(boolean value) {
         keyCooldown = 0.10f;
         this.focused = value;
+        updateVisualState();
     }
 
     public void setCallback(int index, Runnable callback) {
@@ -95,15 +108,31 @@ public class OptionsTable<T> extends Table {
 
     public void refresh() {
         clearChildren();
-        cursors.clear();
-        for (T opt : options) {
-            Label cursor = new Label(">", skin);
-            addCursorAnimation(cursor);
-            add(cursor).padLeft(5).padRight(5);
-            cursor.setVisible(false);
-            cursors.add(cursor);
-            renderer.render(this, opt);
-            row();
+        for (int i = 0; i < options.size; i++) {
+
         }
     }
+
+    public T getFocused() {
+        return options.get(selectedIndex);
+    }
+
+    public void nextIndex() {
+        selectedIndex = (selectedIndex + 1) % options.size;
+        updateVisualState();
+    }
+
+    public void prevIndex() {
+        selectedIndex = (selectedIndex - 1 + options.size) % options.size;
+        updateVisualState();
+    }
+
+    public void resetSelection() {
+        selectedIndex = 0;
+        updateVisualState();
+    }
+
+    public void clearSelectionHighlight() {
+    }
+
 }
