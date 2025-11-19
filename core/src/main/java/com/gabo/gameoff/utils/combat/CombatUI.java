@@ -22,6 +22,8 @@ import com.gabo.gameoff.utils.ui.HeroesTable;
 import com.gabo.gameoff.utils.ui.OptionsTable;
 
 public class CombatUI {
+
+  
     public interface UIListener {
         void onActionSelected(MenuActions action);
 
@@ -45,7 +47,7 @@ public class CombatUI {
 
     HashMap<BaseUnit, Image> enemiesHashmap = new HashMap<>();
 
-    private Array<MenuActions> actions = new Array<>();
+    private final Array<MenuActions> actions = new Array<>();
     {
         actions.add(MenuActions.FIGHT);
         actions.add(MenuActions.SPELL);
@@ -72,7 +74,12 @@ public class CombatUI {
         focusTable(actionsTable);
     }
 
-    public void buildLayout() {
+
+    public void refresh() {
+            
+    }
+
+    private void buildLayout() {
         mainTable.add(enemiesTable)
                 .expandX()
                 .fillX()
@@ -91,7 +98,6 @@ public class CombatUI {
         });
         actionsTable.setCallback((item) -> {
             screen.onActionSelected(item);
-            return;
         });
     }
 
@@ -133,7 +139,7 @@ public class CombatUI {
         this.focusTable(actionsTable);
     }
 
-    public void focusTable(OptionsTable<?> table) {
+    public final void focusTable(OptionsTable<?> table) {
         if (currentTable != null) {
             currentTable.setFocus(false);
         }
@@ -181,7 +187,7 @@ public class CombatUI {
         });
     }
 
-    public void resetSelection() {
+    public void resetHeroSelection() {
         heroesTable.resetSelection();
         heroesTable.clearSelectionHighlight();
     }

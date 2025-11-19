@@ -94,7 +94,6 @@ public class CombatScreen implements Screen, UIListener {
 
         ui.heroesNextIndex();
         ui.focusActions();
-        return;
     }
 
     @Override
@@ -109,14 +108,20 @@ public class CombatScreen implements Screen, UIListener {
         combatManager.setState(CombatState.ENEMY_TURN);
     }
 
+    /**
+     * @param Turn turn to animate
+     * Animation effects in a turn, once animation finish it updates UI to show correct HP
+     **/
     public void animateTurn(Turn turn) {
+        turn.attacked.hp -= 5;
         ui.animate(turn, () -> {
+            ui.refresh();
             combatManager.setState(CombatState.COMBAT_RESULT);
         });
     }
 
     public void resetSelection() {
         ui.focusActions();
-        ui.resetSelection();
+        ui.resetHeroSelection();
     }
 }

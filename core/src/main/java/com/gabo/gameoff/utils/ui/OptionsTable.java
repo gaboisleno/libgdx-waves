@@ -53,6 +53,12 @@ public class OptionsTable<T> extends Table {
         }
     }
 
+    public void refresh() {
+        clearChildren();
+        rows.clear();
+        buildRows();
+    }
+
     protected void addCursorAnimation(Label cursor) {
         cursor.addAction(Actions.forever(
                 Actions.sequence(
@@ -106,13 +112,6 @@ public class OptionsTable<T> extends Table {
 
     public void setCallback(Consumer<T> callback) {
         this.callback = callback;
-    }
-
-    public void refresh() {
-        clearChildren();
-        for (int i = 0; i < options.size; i++) {
-
-        }
     }
 
     public T getFocused() {
