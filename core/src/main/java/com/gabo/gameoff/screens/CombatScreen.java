@@ -110,12 +110,13 @@ public class CombatScreen implements Screen, UIListener {
 
     /**
      * @param Turn turn to animate
-     * Animation effects in a turn, once animation finish it updates UI to show correct HP
+     *             Animation effects in a turn, once animation finish it updates UI
+     *             to show correct HP
      **/
     public void animateTurn(Turn turn) {
         turn.attacked.hp -= 5;
         ui.animate(turn, () -> {
-            ui.refresh();
+            ui.refreshHeroesInfo();
             combatManager.setState(CombatState.COMBAT_RESULT);
         });
     }

@@ -23,7 +23,6 @@ import com.gabo.gameoff.utils.ui.OptionsTable;
 
 public class CombatUI {
 
-  
     public interface UIListener {
         void onActionSelected(MenuActions action);
 
@@ -72,11 +71,6 @@ public class CombatUI {
 
         buildLayout();
         focusTable(actionsTable);
-    }
-
-
-    public void refresh() {
-            
     }
 
     private void buildLayout() {
@@ -164,9 +158,12 @@ public class CombatUI {
         if (turn.attacked instanceof Enemy) {
             Image image = enemiesHashmap.get(turn.attacked);
             image.addAction(
-                    Actions.sequence(
-                            Actions.moveBy(20, 0, 0.1f),
-                            Actions.moveBy(-20, 0, 0.1f)));
+                    Actions.repeat(5,
+                            Actions.sequence(
+                                    Actions.alpha(0),
+                                    Actions.delay(.1f),
+                                    Actions.alpha(1),
+                                    Actions.delay(.1f))));
         }
 
         DialogueBox dialogue = new DialogueBox(skin);
@@ -182,7 +179,7 @@ public class CombatUI {
 
         dialogue.addLineEndListener(() -> {
             dialogue.addAction(Actions.sequence(
-                    Actions.delay(1.5f),
+                    Actions.delay(1.25f),
                     Actions.run(dialogue::nextLine)));
         });
     }
@@ -190,5 +187,9 @@ public class CombatUI {
     public void resetHeroSelection() {
         heroesTable.resetSelection();
         heroesTable.clearSelectionHighlight();
+    }
+
+    public void refreshHeroesInfo() {
+        heroesTable.refresh();
     }
 }

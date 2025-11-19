@@ -11,7 +11,6 @@ public class HeroesTable extends OptionsTable<BaseUnit> {
         super(heroes, skin, (table, hero, row) -> {
             Label name = new Label(hero.name, skin);
             Label hp = new Label(hero.hp + " / " + hero.maxHp, skin);
-
             table.add(name).left().padRight(10);
             table.add(hp);
 
