@@ -21,10 +21,6 @@ public class HeroesTable extends OptionsTable<BaseUnit> {
     }
 
     @Override
-    public void act(float delta) {
-    }
-
-    @Override
     public void updateVisualState() {
         for (int i = 0; i < rows.size; i++) {
             Row r = rows.get(i);
@@ -38,17 +34,8 @@ public class HeroesTable extends OptionsTable<BaseUnit> {
 
     @Override
     protected void addCursorAnimation(Label cursor) {
-    }
-
-    @Override
-    public void clearSelectionHighlight() {
-        for (int i = 0; i < rows.size; i++) {
-            Row r = rows.get(i);
-            r.cursor.setVisible(false);
-            for (Label l : r.labels) {
-                l.setColor(Color.WHITE);
-            }
-        }
+        // no animation
+        return;
     }
 
 }

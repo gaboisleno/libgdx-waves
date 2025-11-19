@@ -3,7 +3,6 @@ package com.gabo.gameoff.utils.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -11,6 +10,16 @@ import com.badlogic.gdx.utils.Align;
 import com.gabo.gameoff.Core;
 
 public class DialogueBox extends Table {
+    @FunctionalInterface
+    public interface LineEndListener {
+        void run();
+    }
+
+    @FunctionalInterface
+    public interface DialogEndListener {
+        void run();
+    }
+
     Table dialogTable;
     private Label textLabel;
     private float timePerChar = 0.02f;
@@ -19,16 +28,16 @@ public class DialogueBox extends Table {
     private int visibleChars;
     private String fullText;
 
-    private Runnable onFinish;
+    private DialogEndListener dialogEndListener;
+    private LineEndListener lineEndListener;
+
+    private boolean lineFinished = false;
 
     List<String> lines = new ArrayList<>();
     int currentLine = 0;
 
-    NinePatch patch;
-
     public DialogueBox(Skin skin) {
         super(skin);
-        // setDebug(true);
         setFillParent(true);
         setVisible(false);
 
@@ -77,10 +86,10 @@ public class DialogueBox extends Table {
         } else {
             textLabel.setText("");
             lines.clear();
-            if (onFinish != null) {
+            if (dialogEndListener != null) {
                 setVisible(false);
-                onFinish.run();
-                onFinish = null;
+                dialogEndListener.run();
+                dialogEndListener = null;
             }
             finished = true;
         }
@@ -90,8 +99,13 @@ public class DialogueBox extends Table {
     public void act(float delta) {
         super.act(delta);
 
-        if (finished || fullText == null)
+        if (finished || fullText == null) {
+            if (lineEndListener != null && lineFinished) {
+                lineEndListener.run();
+                lineFinished = false;
+            }
             return;
+        }
 
         elapsed += delta;
 
@@ -104,6 +118,7 @@ public class DialogueBox extends Table {
 
         if (charsToShow >= fullText.length()) {
             this.finished = true;
+            lineFinished = true;
         }
     }
 
@@ -111,10 +126,10 @@ public class DialogueBox extends Table {
         return this.finished;
     }
 
-    public void setLines(List<String> dialogueList, Runnable runnable) {
+    public void setLines(List<String> dialogueList, DialogEndListener runnable) {
         lines = new ArrayList<>(dialogueList);
         currentLine = 0;
-        onFinish = runnable;
+        dialogEndListener = runnable;
         setDialogue(lines.get(currentLine));
         setVisible(true);
     }
@@ -129,4 +144,9 @@ public class DialogueBox extends Table {
     public boolean isAllLinesDone() {
         return lines.isEmpty();
     }
+
+    public void addLineEndListener(LineEndListener listener) {
+        this.lineEndListener = listener;
+    }
+
 }

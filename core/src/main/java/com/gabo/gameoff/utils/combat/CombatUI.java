@@ -1,6 +1,11 @@
 package com.gabo.gameoff.utils.combat;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -10,19 +15,19 @@ import com.gabo.gameoff.Core;
 import com.gabo.gameoff.assets.Assets;
 import com.gabo.gameoff.assets.Images;
 import com.gabo.gameoff.entities.BaseUnit;
+import com.gabo.gameoff.entities.Enemy;
 import com.gabo.gameoff.screens.CombatScreen;
+import com.gabo.gameoff.utils.ui.DialogueBox;
 import com.gabo.gameoff.utils.ui.HeroesTable;
 import com.gabo.gameoff.utils.ui.OptionsTable;
 
 public class CombatUI {
     public interface UIListener {
-        void onActionSelected(String action);
+        void onActionSelected(MenuActions action);
 
         void onEnemySelected(BaseUnit enemy);
 
         void onHeroSelected(BaseUnit hero);
-
-        void onRunSelected();
 
         void allHeroesFinished();
     }
@@ -31,18 +36,21 @@ public class CombatUI {
     Skin skin;
     Assets assets;
     CombatScreen screen;
+
     Table mainTable;
     OptionsTable<BaseUnit> enemiesTable;
     OptionsTable<BaseUnit> heroesTable;
-    OptionsTable<String> actionsTable;
+    OptionsTable<MenuActions> actionsTable;
     OptionsTable<?> currentTable;
 
-    private Array<String> actions = new Array<>();
+    HashMap<BaseUnit, Image> enemiesHashmap = new HashMap<>();
+
+    private Array<MenuActions> actions = new Array<>();
     {
-        actions.add("Fight");
-        actions.add("Spell");
-        actions.add("Items");
-        actions.add("Run");
+        actions.add(MenuActions.FIGHT);
+        actions.add(MenuActions.SPELL);
+        actions.add(MenuActions.ITEM);
+        actions.add(MenuActions.RUN);
     }
 
     public CombatUI(CombatScreen screen, Stage stage, Assets assets) {
@@ -77,20 +85,12 @@ public class CombatUI {
 
     private void prepareActionListTable() {
         actionsTable = new OptionsTable<>(actions, skin, (table, option, row) -> {
-            Label action = new Label(option, skin);
+            Label action = new Label(option.toString(), skin);
             table.add(action).left().padRight(10);
             row.add(action);
         });
-
-        // attack option
-        actionsTable.setCallback(0, () -> {
-            screen.onActionSelected("Fight");
-            return;
-        });
-
-        // run option
-        actionsTable.setCallback(3, () -> {
-            screen.onRunSelected();
+        actionsTable.setCallback((item) -> {
+            screen.onActionSelected(item);
             return;
         });
     }
@@ -102,9 +102,8 @@ public class CombatUI {
         heroesTable.setFocus(false);
 
         for (int i = 0; i < heroes.size; i++) {
-            int index = i;
-            heroesTable.setCallback(i, () -> {
-                screen.onHeroSelected(heroes.get(index));
+            heroesTable.setCallback((hero) -> {
+                screen.onHeroSelected(hero);
             });
         }
     }
@@ -115,12 +114,13 @@ public class CombatUI {
         enemiesTable = new OptionsTable<BaseUnit>(enemies, skin, (table, enemy, row) -> {
             Image sprite = new Image(assets.getImage(Images.creature_058));
             table.add(sprite);
+
+            enemiesHashmap.put(enemy, sprite);
         });
 
         for (int i = 0; i < enemies.size; i++) {
-            int index = i;
-            enemiesTable.setCallback(i, () -> {
-                screen.onEnemySelected(enemies.get(index));
+            enemiesTable.setCallback((enemy) -> {
+                screen.onEnemySelected(enemy);
             });
         }
     }
@@ -150,5 +150,39 @@ public class CombatUI {
 
     public BaseUnit getFocusedHero() {
         return heroesTable.getFocused();
+    }
+
+    public void animate(Turn turn, Runnable onFinish) {
+        enemiesTable.setFocus(false);
+
+        if (turn.attacked instanceof Enemy) {
+            Image image = enemiesHashmap.get(turn.attacked);
+            image.addAction(
+                    Actions.sequence(
+                            Actions.moveBy(20, 0, 0.1f),
+                            Actions.moveBy(-20, 0, 0.1f)));
+        }
+
+        DialogueBox dialogue = new DialogueBox(skin);
+        stage.addActor(dialogue);
+
+        List<String> info = new ArrayList<>();
+        info.add(turn.attacker.name + " attacks to " + turn.attacked.name);
+
+        dialogue.setLines(info, () -> {
+            dialogue.remove();
+            onFinish.run();
+        });
+
+        dialogue.addLineEndListener(() -> {
+            dialogue.addAction(Actions.sequence(
+                    Actions.delay(1.5f),
+                    Actions.run(dialogue::nextLine)));
+        });
+    }
+
+    public void resetSelection() {
+        heroesTable.resetSelection();
+        heroesTable.clearSelectionHighlight();
     }
 }

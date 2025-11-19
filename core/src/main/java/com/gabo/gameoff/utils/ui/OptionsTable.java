@@ -1,7 +1,10 @@
 package com.gabo.gameoff.utils.ui;
 
+import java.util.function.Consumer;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -15,8 +18,8 @@ public class OptionsTable<T> extends Table {
     }
 
     protected Array<T> options = new Array<>();
-    protected Array<Runnable> callbacks = new Array<>();
     public Array<Row> rows = new Array<>();
+    protected Consumer<T> callback;
 
     protected ItemRenderer<T> renderer;
     public Skin skin;
@@ -38,7 +41,6 @@ public class OptionsTable<T> extends Table {
         for (int i = 0; i < options.size; i++) {
             Row row = new Row();
             rows.add(row);
-            callbacks.add(null);
 
             row.cursor = new Label(">", skin);
             addCursorAnimation(row.cursor);
@@ -72,7 +74,8 @@ public class OptionsTable<T> extends Table {
         if (!focused)
             return;
 
-        // TODO remove input events from here
+        // TODO you shouldn't manage the inputs directly in the table, but i dont have
+        // time to change it
         if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
             emmitEvent(selectedIndex);
             return;
@@ -91,9 +94,8 @@ public class OptionsTable<T> extends Table {
     }
 
     private void emmitEvent(int index) {
-        Runnable r = callbacks.get(index);
-        if (r != null)
-            r.run();
+        if (callback != null)
+            callback.accept(options.get(index));
     }
 
     public void setFocus(boolean value) {
@@ -102,8 +104,8 @@ public class OptionsTable<T> extends Table {
         updateVisualState();
     }
 
-    public void setCallback(int index, Runnable callback) {
-        callbacks.set(index, callback);
+    public void setCallback(Consumer<T> callback) {
+        this.callback = callback;
     }
 
     public void refresh() {
@@ -133,6 +135,12 @@ public class OptionsTable<T> extends Table {
     }
 
     public void clearSelectionHighlight() {
+        for (int i = 0; i < rows.size; i++) {
+            Row r = rows.get(i);
+            r.cursor.setVisible(false);
+            for (Label l : r.labels) {
+                l.setColor(Color.WHITE);
+            }
+        }
     }
-
 }
