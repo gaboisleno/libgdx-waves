@@ -14,6 +14,7 @@ public class LdtkLevel {
     private final String path = "maps/demo/";
     float levelHeight, levelWidth;
     GameStage stage;
+    public Actor player;
 
     public LdtkLevel(GameStage stage) {
         this.stage = stage;
@@ -100,6 +101,9 @@ public class LdtkLevel {
                     Player player = new Player(stage.game.assets);
                     player.setPosition(x, y);
                     stage.playerGroup.addActor(player);
+                    
+                    // store player ref
+                    this.player = player;
                     break;
 
                 case "Npc":

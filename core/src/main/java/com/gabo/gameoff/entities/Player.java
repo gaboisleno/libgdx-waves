@@ -2,9 +2,7 @@ package com.gabo.gameoff.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -64,19 +62,6 @@ public class Player extends Actor {
         if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
             interact();
         }
-
-        // TODO fix the camera
-        Camera cam = getStage().getCamera();
-
-        float camX = getX() + Core.CELL_WIDTH / 2f;
-        float camY = getY() + Core.CELL_HEIGHT / 2f;
-
-        camX = MathUtils.clamp(camX, cam.viewportWidth / 2f, 320 - cam.viewportWidth / 2f);
-        camY = MathUtils.clamp(camY, cam.viewportHeight / 2f, 240 - cam.viewportHeight / 2f);
-
-        cam.position.set(camX, camY, 0);
-        cam.update();
-
     }
 
     @Override
