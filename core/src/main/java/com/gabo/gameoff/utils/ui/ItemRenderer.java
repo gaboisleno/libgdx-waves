@@ -10,5 +10,6 @@ import com.badlogic.gdx.utils.Array;
  * this interface is used to interfere diferent types of options inside the OptionTable as enemies, items, spells,etc...
 */
 public interface ItemRenderer<T> {
-    void render(Table table, T item, Array<Label> row);
+    void render(Table table, OptionsTable<T>.Option row);
+    void applySelectionStyle(Array<Label> row, boolean isSelected);
 }

@@ -94,15 +94,13 @@ public class CombatManager {
     }
 
     public void addTurn() {
+        // TODO rename this
         selectedHero.disabled = true;
         addTurn(selectedHero, selectedEnemy);
     }
 
     public void addTurn(BaseUnit a, BaseUnit b) {
-        Turn turn = new Turn();
-        turn.attacker = a;
-        turn.attacked = b;
-        turn.action = "fight"; // hardcoded for now
+        Turn turn = new Turn(a, b, MenuActions.FIGHT);
         turnList.add(turn);
     }
 

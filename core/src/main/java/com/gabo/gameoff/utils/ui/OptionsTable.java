@@ -4,23 +4,24 @@ import java.util.function.Consumer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 
 public class OptionsTable<T> extends Table {
-    protected static class Row {
-        Label cursor;
-        Array<Label> labels = new Array<>();
+
+    public class Option {
+        public Array<Label> labels = new Array<>();
+        public Image image;
+        public T value;
     }
+    
+    public Array<Option> optionList = new Array<>();
 
-    protected Array<T> options = new Array<>();
-    public Array<Row> rows = new Array<>();
-    protected Consumer<T> callback;
-
+    protected Consumer<Option> callback;
     protected ItemRenderer<T> renderer;
     public Skin skin;
 
@@ -28,44 +29,33 @@ public class OptionsTable<T> extends Table {
     protected int selectedIndex = 0;
     protected float keyCooldown = 0;
 
-    public OptionsTable(Array<T> items, Skin skin, ItemRenderer<T> renderer) {
-        this.options = items;
+    public OptionsTable(Array<T> items, Skin skin, ItemRenderer<T> renderer) { 
         this.renderer = renderer;
         this.skin = skin;
+        
         background(skin.getDrawable("dialogue"));
-        buildRows();
+        buildRows(items);
         updateVisualState();
     }
 
-    private void buildRows() {
-        for (int i = 0; i < options.size; i++) {
-            Row row = new Row();
-            rows.add(row);
-
-            row.cursor = new Label(">", skin);
-            addCursorAnimation(row.cursor);
-
-            add(row.cursor).pad(0, 5, 0, 5);
-
-            row.labels.add(row.cursor);
-            renderer.render(this, options.get(i), row.labels);
+    private void buildRows(Array<T> options) {
+        for (T option : options) {
+            
+            Option row = new Option();
+            row.value = option;
+            row.labels = new Array<>();            
+             
+            renderer.render(this, row);
             row();
+            
+            optionList.add(row);
         }
     }
-
-    public void refresh() {
+ 
+    public void refresh(Array<T> items) {
         clearChildren();
-        rows.clear();
-        buildRows();
-    }
-
-    protected void addCursorAnimation(Label cursor) {
-        cursor.addAction(Actions.forever(
-                Actions.sequence(
-                        Actions.alpha(0f),
-                        Actions.delay(0.25f),
-                        Actions.alpha(1f),
-                        Actions.delay(0.25f))));
+        optionList.clear();
+        buildRows(items);
     }
 
     @Override
@@ -93,15 +83,17 @@ public class OptionsTable<T> extends Table {
     }
 
     public void updateVisualState() {
-        for (int i = 0; i < rows.size; i++) {
-            Row r = rows.get(i);
-            r.cursor.setVisible(i == selectedIndex && focused);
+        for (int i = 0; i < optionList.size; i++) {
+            Array<Label> r = optionList.get(i).labels;
+            
+            boolean isSelected = (i == selectedIndex && focused);
+            renderer.applySelectionStyle(r, isSelected);
         }
     }
 
     private void emmitEvent(int index) {
         if (callback != null)
-            callback.accept(options.get(index));
+            callback.accept(optionList.get(index));
     }
 
     public void setFocus(boolean value) {
@@ -110,21 +102,21 @@ public class OptionsTable<T> extends Table {
         updateVisualState();
     }
 
-    public void setCallback(Consumer<T> callback) {
+    public void setCallback(Consumer<Option> callback) {
         this.callback = callback;
     }
 
     public T getFocused() {
-        return options.get(selectedIndex);
+        return optionList.get(selectedIndex).value;
     }
 
     public void nextIndex() {
-        selectedIndex = (selectedIndex + 1) % options.size;
+        selectedIndex = (selectedIndex + 1) % optionList.size;
         updateVisualState();
     }
 
     public void prevIndex() {
-        selectedIndex = (selectedIndex - 1 + options.size) % options.size;
+        selectedIndex = (selectedIndex - 1 + optionList.size) % optionList.size;
         updateVisualState();
     }
 
@@ -133,13 +125,26 @@ public class OptionsTable<T> extends Table {
         updateVisualState();
     }
 
-    public void clearSelectionHighlight() {
-        for (int i = 0; i < rows.size; i++) {
-            Row r = rows.get(i);
-            r.cursor.setVisible(false);
-            for (Label l : r.labels) {
-                l.setColor(Color.WHITE);
+    public Option findByOption(T item) {
+        for (int i = 0; i < optionList.size; i++) {
+            if (optionList.get(i).value == item) {
+                return optionList.get(i);
             }
         }
+        return null;
     }
+
+    public void clearSelectionHighlight() {
+        // TODO
+    }
+
+     public static void addCursorAnimation(Label cursor) {
+        cursor.addAction(Actions.forever(
+                Actions.sequence(
+                        Actions.alpha(0f),
+                        Actions.delay(0.25f),
+                        Actions.alpha(1f),
+                        Actions.delay(0.25f))));
+                    }
+    
 }

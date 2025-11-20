@@ -12,16 +12,16 @@ import com.gabo.gameoff.assets.Atlases;
 import com.gabo.gameoff.stages.GameStage;
 import com.gabo.gameoff.utils.AnimatedSprite;
 
-public class Npc extends Actor {
+public class Npc extends Actor implements Interactive {
 
     private AnimatedSprite animatedSprite;
-    public Rectangle interactArea;
     public List<String> dialogues = new ArrayList<>();
-
+    private Rectangle interactArea;
+    
     public Npc(Assets assets) {
         setBounds(0, 0, Core.CELL_WIDTH, Core.CELL_HEIGHT);
         interactArea = new Rectangle(0, 0, Core.CELL_WIDTH + 16, Core.CELL_HEIGHT + 16);
-
+        
         animatedSprite = new AnimatedSprite(assets.getAtlas(Atlases.red_npc));
         animatedSprite.setAnimation("idle");
     }
@@ -41,9 +41,15 @@ public class Npc extends Actor {
         animatedSprite.draw(batch, getX() - getWidth() / 2, getY() - getHeight() / 2);
     }
 
+    @Override
     public void interact() {
         GameStage stage = (GameStage) getStage();
         stage.game.showDialogues(dialogues);
         // stage.game.showCombatScreen();
+    }
+
+    @Override
+    public Rectangle getInteractArea() {
+        return interactArea;
     }
 }

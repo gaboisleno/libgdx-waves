@@ -100,7 +100,7 @@ public class Player extends Actor {
         for (Actor actor : stage.npcsGroup.getChildren()) {
             Npc npc = (Npc) actor;
 
-            if (npc.interactArea.overlaps(bounds)) {
+            if (npc.getInteractArea().overlaps(bounds)) {
                 npc.interact();
             }
         }
