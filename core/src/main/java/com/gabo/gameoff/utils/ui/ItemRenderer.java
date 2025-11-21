@@ -11,5 +11,6 @@ import com.badlogic.gdx.utils.Array;
 */
 public interface ItemRenderer<T> {
     void render(Table table, OptionsTable<T>.Option row);
-    void applySelectionStyle(Array<Label> row, boolean isSelected);
+
+    void applySelectionStyle(Array<Label> row, boolean isSelected, boolean isFocused);
 }

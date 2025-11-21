@@ -11,15 +11,15 @@ import com.gabo.gameoff.entities.BaseUnit;
 public class HeroItemRenderer implements ItemRenderer<BaseUnit> {
 
     private final Skin skin;
-    
+
     public HeroItemRenderer(Assets assets) {
         this.skin = assets.getSkin();
     }
 
     @Override
-    public void applySelectionStyle(Array<Label> rowLabels, boolean isSelected) {
-        Color color = (isSelected) ? Color.WHITE : Color.GRAY; 
-        
+    public void applySelectionStyle(Array<Label> rowLabels, boolean isSelected, boolean isFocused) {
+        Color color = (isSelected) ? Color.WHITE : Color.GRAY;
+
         for (Label l : rowLabels) {
             l.setColor(color);
         }

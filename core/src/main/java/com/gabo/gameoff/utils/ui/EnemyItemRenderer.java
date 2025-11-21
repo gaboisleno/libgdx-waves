@@ -20,8 +20,8 @@ public class EnemyItemRenderer implements ItemRenderer<BaseUnit> {
     }
 
     @Override
-    public void applySelectionStyle(Array<Label> rowLabels, boolean isSelected) {
-        rowLabels.get(0).setVisible(isSelected);
+    public void applySelectionStyle(Array<Label> rowLabels, boolean isSelected, boolean isFocused) {
+        rowLabels.get(0).setVisible(isSelected && isFocused);
     }
 
     @Override
@@ -30,10 +30,10 @@ public class EnemyItemRenderer implements ItemRenderer<BaseUnit> {
         Image sprite = new Image(assets.getImage(Images.creature_058));
 
         OptionsTable.addCursorAnimation(cursor);
-        
+
         row.labels.add(cursor);
         row.image = sprite;
-        
+
         table.add(cursor).padLeft(5).padRight(5);
         table.add(sprite);
     }

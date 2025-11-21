@@ -11,17 +11,17 @@ import com.gabo.gameoff.utils.combat.MenuActions;
 public class ActionItemRenderer implements ItemRenderer<MenuActions> {
 
     private final Skin skin;
-    
+
     public ActionItemRenderer(Assets assets) {
         this.skin = assets.getSkin();
     }
 
     @Override
-    public void applySelectionStyle(Array<Label> rowLabels, boolean isSelected) {
-        rowLabels.get(0).setVisible(isSelected);
+    public void applySelectionStyle(Array<Label> rowLabels, boolean isSelected, boolean isFocused) {
+        rowLabels.get(0).setVisible(isSelected && isFocused);
 
-        Color color = (isSelected) ? Color.WHITE : Color.GRAY; 
-        
+        Color color = (isSelected) ? Color.WHITE : Color.GRAY;
+
         for (Label l : rowLabels) {
             l.setColor(color);
         }
@@ -33,13 +33,13 @@ public class ActionItemRenderer implements ItemRenderer<MenuActions> {
         Label cursor = new Label(">", skin);
 
         OptionsTable.addCursorAnimation(cursor);
-        
+
         row.labels.add(cursor);
         row.labels.add(actionLabel);
 
         table.add(cursor).padLeft(5).padRight(5);
         table.add(actionLabel).left().padRight(5);
-        
+
     }
-     
+
 }

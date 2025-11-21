@@ -18,7 +18,7 @@ public class OptionsTable<T> extends Table {
         public Image image;
         public T value;
     }
-    
+
     public Array<Option> optionList = new Array<>();
 
     protected Consumer<Option> callback;
@@ -29,10 +29,10 @@ public class OptionsTable<T> extends Table {
     protected int selectedIndex = 0;
     protected float keyCooldown = 0;
 
-    public OptionsTable(Array<T> items, Skin skin, ItemRenderer<T> renderer) { 
+    public OptionsTable(Array<T> items, Skin skin, ItemRenderer<T> renderer) {
         this.renderer = renderer;
         this.skin = skin;
-        
+
         background(skin.getDrawable("dialogue"));
         buildRows(items);
         updateVisualState();
@@ -40,18 +40,18 @@ public class OptionsTable<T> extends Table {
 
     private void buildRows(Array<T> options) {
         for (T option : options) {
-            
+
             Option row = new Option();
             row.value = option;
-            row.labels = new Array<>();            
-             
+            row.labels = new Array<>();
+
             renderer.render(this, row);
             row();
-            
+
             optionList.add(row);
         }
     }
- 
+
     public void refresh(Array<T> items) {
         clearChildren();
         optionList.clear();
@@ -85,9 +85,9 @@ public class OptionsTable<T> extends Table {
     public void updateVisualState() {
         for (int i = 0; i < optionList.size; i++) {
             Array<Label> r = optionList.get(i).labels;
-            
-            boolean isSelected = (i == selectedIndex && focused);
-            renderer.applySelectionStyle(r, isSelected);
+
+            boolean isSelected = (i == selectedIndex);
+            renderer.applySelectionStyle(r, isSelected, focused);
         }
     }
 
@@ -138,13 +138,13 @@ public class OptionsTable<T> extends Table {
         // TODO
     }
 
-     public static void addCursorAnimation(Label cursor) {
+    public static void addCursorAnimation(Label cursor) {
         cursor.addAction(Actions.forever(
                 Actions.sequence(
                         Actions.alpha(0f),
                         Actions.delay(0.25f),
                         Actions.alpha(1f),
                         Actions.delay(0.25f))));
-                    }
-    
+    }
+
 }

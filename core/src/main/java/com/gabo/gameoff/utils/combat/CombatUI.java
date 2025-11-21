@@ -37,6 +37,7 @@ public class CombatUI {
     Assets assets;
     CombatScreen screen;
 
+    // UI Elements
     Table mainTable;
     OptionsTable<BaseUnit> enemiesTable;
     OptionsTable<BaseUnit> heroesTable;
@@ -105,7 +106,7 @@ public class CombatUI {
         Array<BaseUnit> enemies = screen.combatManager.enemies;
 
         enemiesTable = new OptionsTable<BaseUnit>(enemies, skin, new EnemyItemRenderer(assets));
-        
+
         for (int i = 0; i < enemies.size; i++) {
             enemiesTable.setCallback((item) -> {
                 screen.onEnemySelected(item.value);
@@ -143,24 +144,24 @@ public class CombatUI {
     public void animate(Turn turn, Runnable onFinish) {
         enemiesTable.setFocus(false);
 
-        if (turn.getAttacked() instanceof Enemy) {
-            Option option = enemiesTable.findByOption(turn.getAttacked());
-            if (option != null) {
-                option.image.addAction(
-                    Actions.repeat(5,
-                            Actions.sequence(
-                                    Actions.alpha(0),
-                                    Actions.delay(.1f),
-                                    Actions.alpha(1),
-                                    Actions.delay(.1f))));
-            }
-       }
-
         DialogueBox dialogue = new DialogueBox(skin);
         stage.addActor(dialogue);
-
         List<String> info = new ArrayList<>();
         info.add(turn.getAttacker().name + " attacks to " + turn.getAttacked().name);
+
+        if (turn.getAttacked() instanceof Enemy) {
+            Option option = enemiesTable.findByOption(turn.getAttacked());
+
+            if (option != null) {
+                option.image.addAction(
+                        Actions.repeat(5,
+                                Actions.sequence(
+                                        Actions.alpha(0),
+                                        Actions.delay(.1f),
+                                        Actions.alpha(1),
+                                        Actions.delay(.1f))));
+            }
+        }
 
         dialogue.setLines(info, () -> {
             dialogue.remove();
