@@ -24,4 +24,8 @@ public class Turn {
     public MenuActions getAction() {
         return action;
     }
+
+    public void setAttacked(BaseUnit attacked) {
+        this.attacked = attacked;
+    }
 }

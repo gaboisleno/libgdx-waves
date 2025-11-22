@@ -96,8 +96,8 @@ public class OptionsTable<T> extends Table {
         this.callback = callback;
     }
 
-    public T getFocused() {
-        return optionList.get(selectedIndex).getValue();
+    public Option<T> getFocused() {
+        return optionList.get(selectedIndex);
     }
 
     public void nextIndex() {

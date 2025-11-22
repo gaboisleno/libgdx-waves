@@ -3,6 +3,8 @@
 */
 package com.gabo.gameoff.screens;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -33,6 +35,10 @@ public class CombatScreen implements Screen, UIListener {
 
         combatManager = new CombatManager(this);
         ui = new CombatUI(this);
+        
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     @Override
@@ -79,12 +85,15 @@ public class CombatScreen implements Screen, UIListener {
 
             case RUN:
                 combatManager.setState(CombatState.RUN);
-                game.hideCombatScreen();
                 break;
 
             default:
                 break;
         }
+    }
+
+    public void hideCombatScreen() {
+        game.hideCombatScreen();
     }
 
     @Override
@@ -97,15 +106,23 @@ public class CombatScreen implements Screen, UIListener {
             return;
         }
 
+        nextHero();
+    }
+
+    public void nextHero() {
         ui.heroesNextIndex();
         ui.focusActions();
     }
 
     @Override
     public void onHeroSelected(Option<BaseUnit> hero) {
-        combatManager.setState(CombatState.PLAYER_CHOOSE_ACTION);
-        combatManager.setSelectedUnit(hero.getValue());
-        ui.focusActions();
+        if (hero.getValue().isAlive()) { // if hero is alive
+            combatManager.setState(CombatState.PLAYER_CHOOSE_ACTION);
+            combatManager.setSelectedUnit(hero.getValue());
+            ui.focusActions();
+        } else { // else skip to next hero
+            nextHero();
+        }
     }
 
     @Override
@@ -114,9 +131,16 @@ public class CombatScreen implements Screen, UIListener {
     }
 
     public void animateTurn(Turn turn) {
-        combatManager.applyDamage(turn);
+        boolean damageApplied = combatManager.applyDamage(turn);
+
+        if (!damageApplied) {
+            combatManager.setState(CombatState.COMBAT_RESULT);
+            return;
+        }
+
         ui.animate(turn, () -> {
             ui.refreshHeroesInfo();
+            ui.refreshEnemiesInfo();
             combatManager.setState(CombatState.COMBAT_RESULT);
         });
 
@@ -125,5 +149,28 @@ public class CombatScreen implements Screen, UIListener {
     public void resetSelection() {
         ui.focusActions();
         ui.resetHeroSelection();
+    }
+
+    public void combatResultHandler(CombatState state) {
+        switch (state) {
+            case RUN:
+                ui.showCombatResult("You ran away!", () -> {
+                    hideCombatScreen();
+                });
+                break;
+            case WIN:
+                ui.showCombatResult("You defeated all enemies!", () -> {
+                    hideCombatScreen();
+                });
+                break;
+            case LOSE:
+                ui.showCombatResult("You were defeated in combat...", () -> {
+                    hideCombatScreen();
+                });
+                break;
+            default:
+                break;
+        }
+
     }
 }

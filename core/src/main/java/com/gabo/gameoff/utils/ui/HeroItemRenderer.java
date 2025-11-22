@@ -36,8 +36,8 @@ public class HeroItemRenderer implements ItemRenderer<BaseUnit> {
         Label hp = new Label(row.getValue().hp + " / " + row.getValue().maxHp, skin);
 
         if (!row.getValue().isAlive()) {
-            name.setColor(Color.RED);
-            hp.setColor(Color.RED);
+            name.setColor(Color.MAROON);
+            hp.setColor(Color.MAROON);
         }
 
         table.add(name).left().padRight(10);

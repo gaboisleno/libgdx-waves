@@ -1,5 +1,6 @@
 package com.gabo.gameoff.utils.combat;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.gabo.gameoff.entities.BaseUnit;
@@ -10,13 +11,14 @@ import com.gabo.gameoff.screens.CombatScreen;
 public class CombatManager {
 
     public enum CombatState {
-        PLAYER_CHOOSE_ACTION,
-        PLAYER_CHOOSE_TARGET,
-        ENEMY_TURN,
-        COMBAT,
-        COMBAT_RESULT,
-        RUN,
-        END
+        PLAYER_CHOOSE_ACTION, // player chooses action like fight, run, item, etc
+        PLAYER_CHOOSE_TARGET, // TODO implement target selection
+        ENEMY_TURN, // enemies choose actions
+        COMBAT, // execute turn
+        COMBAT_RESULT, // 1 vs 1 result
+        RUN, // try to escape
+        WIN, // win combat
+        LOSE // lose combat
     }
 
     CombatScreen screen;
@@ -34,12 +36,12 @@ public class CombatManager {
     public CombatManager(CombatScreen screen) {
         this.screen = screen;
 
-        enemies.add(new Enemy("Skeleton A", 30, screen.assets));
-        enemies.add(new Enemy("Skeleton B", 15, screen.assets));
+        enemies.add(new Enemy("Skeleton A", 10, screen.assets));
+        enemies.add(new Enemy("Skeleton B", 10, screen.assets));
 
-        heroes.add(new Hero("Warrior", 30, screen.assets));
-        heroes.add(new Hero("Mage", 10, screen.assets));
-        heroes.add(new Hero("Fighter", 20, screen.assets));
+        heroes.add(new Hero("Warrior", 25, screen.assets));
+        heroes.add(new Hero("Mage", 25, screen.assets));
+        heroes.add(new Hero("Fighter", 0, screen.assets));
     }
 
     public void setState(CombatState state) {
@@ -69,11 +71,21 @@ public class CombatManager {
                 break;
 
             case COMBAT:
-                screen.animateTurn(turnList.pop());
+                screen.animateTurn(turnList.removeIndex(0));
                 break;
 
             case COMBAT_RESULT:
-                if (turnList.isEmpty()) {
+                if (enemies.isEmpty()) { // all enemies defeated
+                    setState(CombatState.WIN);
+                    return;
+                }
+
+                if (allHeroesDead()) { // all heroes defeated
+                    setState(CombatState.LOSE);
+                    return;
+                }
+
+                if (turnList.isEmpty()) { // all turns executed, back to player action otherwise continue next turn
                     screen.resetSelection();
                     setState(CombatState.PLAYER_CHOOSE_ACTION);
                 } else {
@@ -82,11 +94,18 @@ public class CombatManager {
                 break;
 
             case RUN:
-                // try to scape
+                // TODO try to scape, if successful end combat else enemy turn
+                screen.combatResultHandler(state);
                 break;
 
-            case END:
+            case WIN:
                 // end combat
+                screen.combatResultHandler(state);
+                break;
+
+            case LOSE:
+                // end combat
+                screen.combatResultHandler(state);
                 break;
         }
     }
@@ -113,7 +132,15 @@ public class CombatManager {
 
     public boolean allHeroesPlayed() {
         for (BaseUnit hero : heroes) {
-            if (!hero.disabled)
+            if (!hero.disabled && hero.isAlive())
+                return false;
+        }
+        return true;
+    }
+
+    public boolean allHeroesDead() {
+        for (BaseUnit hero : heroes) {
+            if (hero.isAlive())
                 return false;
         }
         return true;
@@ -143,7 +170,35 @@ public class CombatManager {
         return selectedAction;
     }
 
-    public void applyDamage(Turn turn) {
-        turn.getAttacked().receiveDamage(turn.getAttacker().getDamage());
+    public boolean applyDamage(Turn turn) {
+        // First, check if attacker is alive, otherwise skip turn
+        if (turn.getAttacker() == null || !turn.getAttacker().isAlive()) {
+            Gdx.app.log("CombatManager", "Attacker is dead, skipping turn.");
+            return false;
+        }
+
+        BaseUnit selectedTarget = turn.getAttacked();
+
+        if (selectedTarget == null || !selectedTarget.isAlive()) {
+            Gdx.app.log("CombatManager", "Target is already dead, changing next available target.");
+
+            // Find the next available target
+            Array<BaseUnit> potentialTargets = (selectedTarget instanceof Hero) ? heroes : enemies;
+            for (BaseUnit unit : potentialTargets) {
+                if (unit.isAlive()) {
+                    selectedTarget = unit;
+                    turn.setAttacked(selectedTarget);
+                    break;
+                }
+            }
+        }
+        // Apply damage to the (possibly new) target
+        selectedTarget.receiveDamage(turn.getAttacker().getDamage());
+
+        // Finally, remove from combat if dead
+        if (selectedTarget instanceof Enemy && !selectedTarget.isAlive()) {
+            enemies.removeValue(selectedTarget, false);
+        }
+        return true;
     }
 }

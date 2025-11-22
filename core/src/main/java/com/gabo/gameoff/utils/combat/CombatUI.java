@@ -1,8 +1,12 @@
 package com.gabo.gameoff.utils.combat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -137,10 +141,12 @@ public class CombatUI {
 
     public void heroesNextIndex() {
         heroesTable.nextIndex();
+        screen.onHeroSelected(heroesTable.getFocused());
+
     }
 
     public BaseUnit getFocusedHero() {
-        return heroesTable.getFocused();
+        return heroesTable.getFocused().getValue();
     }
 
     public void animate(Turn turn, Runnable onFinish) {
@@ -177,7 +183,44 @@ public class CombatUI {
         heroesTable.refresh(screen.combatManager.heroes);
     }
 
-    Option<BaseUnit> findEnemy(BaseUnit enemy) {
+    public void refreshEnemiesInfo() {
+        enemiesTable.refresh(screen.combatManager.enemies);
+    }
+
+    public Option<BaseUnit> findEnemy(BaseUnit enemy) {
         return enemiesTable.findByOption(enemy);
+    }
+
+    public void showCombatResult(String message, Runnable onFinish) {
+        focusTable(null);
+        List<String> info = Collections.singletonList(message);
+        showDialogMessage(info, onFinish);
+    }
+
+    private void showDialogMessage(List<String> info, Runnable onFinish) {
+        DialogueBox dialogue = new DialogueBox(skin);
+        stage.addActor(dialogue);
+
+        addDialogKeyEvent(dialogue);
+
+        dialogue.setLines(info, () -> {
+            dialogue.remove();
+            onFinish.run();
+        });
+
+    }
+
+    private void addDialogKeyEvent(DialogueBox dialogue) {
+        dialogue.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Keys.ENTER) {
+                    dialogue.nextLine();
+                    return true;
+                }
+                return false;
+            }
+        });
+        stage.setKeyboardFocus(dialogue);
     }
 }

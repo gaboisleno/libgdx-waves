@@ -1,6 +1,5 @@
 package com.gabo.gameoff.utils;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -21,7 +20,6 @@ public class Effect extends Actor {
         animatedSprite.update(delta);
 
         if (animatedSprite.isFinished()) {
-            Gdx.app.log("Effect", "Animation finished, removing effect actor.");
             remove();
         }
     }
