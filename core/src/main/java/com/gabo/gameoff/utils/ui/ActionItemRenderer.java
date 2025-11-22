@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Array;
 import com.gabo.gameoff.assets.Assets;
 import com.gabo.gameoff.utils.combat.MenuActions;
 
@@ -17,19 +16,19 @@ public class ActionItemRenderer implements ItemRenderer<MenuActions> {
     }
 
     @Override
-    public void applySelectionStyle(Array<Label> rowLabels, boolean isSelected, boolean isFocused) {
-        rowLabels.get(0).setVisible(isSelected && isFocused);
+    public void applySelectionStyle(Option<MenuActions> row, boolean isSelected, boolean isFocused) {
+        row.labels.get(0).setVisible(isSelected && isFocused);
 
         Color color = (isSelected) ? Color.WHITE : Color.GRAY;
 
-        for (Label l : rowLabels) {
+        for (Label l : row.labels) {
             l.setColor(color);
         }
     }
 
     @Override
-    public void render(Table table, OptionsTable<MenuActions>.Option row) {
-        Label actionLabel = new Label(row.value.toString(), skin);
+    public void render(Table table, Option<MenuActions> row) {
+        Label actionLabel = new Label(row.getValue().toString(), skin);
         Label cursor = new Label(">", skin);
 
         OptionsTable.addCursorAnimation(cursor);
@@ -39,7 +38,7 @@ public class ActionItemRenderer implements ItemRenderer<MenuActions> {
 
         table.add(cursor).padLeft(5).padRight(5);
         table.add(actionLabel).left().padRight(5);
-
+        table.row();
     }
 
 }

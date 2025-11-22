@@ -1,0 +1,15 @@
+hit_effect.png
+size:128,32
+repeat:none
+hit_effect
+index:2
+bounds:2,2,16,16
+hit_effect
+index:4
+bounds:20,2,16,16
+hit_effect
+index:1
+bounds:38,2,16,16
+hit_effect
+index:3
+bounds:56,2,16,16

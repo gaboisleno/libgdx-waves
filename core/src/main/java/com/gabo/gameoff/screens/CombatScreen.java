@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.gabo.gameoff.Core;
+import com.gabo.gameoff.assets.Assets;
 import com.gabo.gameoff.entities.BaseUnit;
 import com.gabo.gameoff.utils.combat.CombatManager;
 import com.gabo.gameoff.utils.combat.CombatManager.CombatState;
@@ -15,6 +16,7 @@ import com.gabo.gameoff.utils.combat.CombatUI;
 import com.gabo.gameoff.utils.combat.CombatUI.UIListener;
 import com.gabo.gameoff.utils.combat.MenuActions;
 import com.gabo.gameoff.utils.combat.Turn;
+import com.gabo.gameoff.utils.ui.Option;
 
 public class CombatScreen implements Screen, UIListener {
     GameScreen game;
@@ -22,13 +24,15 @@ public class CombatScreen implements Screen, UIListener {
 
     public CombatManager combatManager;
     public CombatUI ui;
+    public Assets assets;
 
     public CombatScreen(GameScreen previousScreen) {
         game = previousScreen;
         stage = new Stage(new FitViewport(Core.VIEW_WIDTH, Core.VIEW_HEIGHT));
+        assets = game.assets;
 
         combatManager = new CombatManager(this);
-        ui = new CombatUI(this, stage, game.assets);
+        ui = new CombatUI(this);
     }
 
     @Override
@@ -64,11 +68,12 @@ public class CombatScreen implements Screen, UIListener {
     }
 
     @Override
-    public void onActionSelected(MenuActions action) {
-        switch (action) {
+    public void onActionSelected(Option<MenuActions> action) {
+        switch (action.getValue()) {
             case FIGHT:
+                combatManager.setSelectedAction(action.getValue());
+                combatManager.setSelectedUnit(ui.getFocusedHero());
                 combatManager.setState(CombatState.PLAYER_CHOOSE_TARGET);
-                combatManager.selectHero(ui.getFocusedHero());
                 ui.focusEnemy();
                 break;
 
@@ -83,8 +88,8 @@ public class CombatScreen implements Screen, UIListener {
     }
 
     @Override
-    public void onEnemySelected(BaseUnit enemy) {
-        combatManager.selectEnemy(enemy);
+    public void onEnemySelected(Option<BaseUnit> enemy) {
+        combatManager.setSelectedTarget(enemy.getValue());
         combatManager.addTurn();
 
         if (combatManager.allHeroesPlayed()) {
@@ -97,9 +102,9 @@ public class CombatScreen implements Screen, UIListener {
     }
 
     @Override
-    public void onHeroSelected(BaseUnit hero) {
+    public void onHeroSelected(Option<BaseUnit> hero) {
         combatManager.setState(CombatState.PLAYER_CHOOSE_ACTION);
-        combatManager.selectHero(hero);
+        combatManager.setSelectedUnit(hero.getValue());
         ui.focusActions();
     }
 
@@ -109,11 +114,12 @@ public class CombatScreen implements Screen, UIListener {
     }
 
     public void animateTurn(Turn turn) {
-        turn.getAttacked().hp -= 5; // TODO move to combat logic
+        combatManager.applyDamage(turn);
         ui.animate(turn, () -> {
             ui.refreshHeroesInfo();
             combatManager.setState(CombatState.COMBAT_RESULT);
         });
+
     }
 
     public void resetSelection() {

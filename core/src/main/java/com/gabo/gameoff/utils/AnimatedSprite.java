@@ -1,5 +1,6 @@
 package com.gabo.gameoff.utils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -24,6 +25,8 @@ public class AnimatedSprite {
 
         Array<TextureAtlas.AtlasRegion> frames = atlas.findRegions(track);
         if (frames.isEmpty()) {
+            Gdx.app.error("AnimatedSprite", "No frames found for animation: " + track);
+            animation = null;
             return;
         }
 

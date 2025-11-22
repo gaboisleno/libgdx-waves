@@ -7,10 +7,10 @@ public class Turn {
     private BaseUnit attacked;
     private MenuActions action;
 
-    public Turn(BaseUnit attacker, BaseUnit attacked, MenuActions fight) {
+    public Turn(BaseUnit attacker, BaseUnit attacked, MenuActions action) {
         this.attacker = attacker;
         this.attacked = attacked;
-        this.action = fight;
+        this.action = action;
     }
 
     public BaseUnit getAttacker() {

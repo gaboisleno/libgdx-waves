@@ -5,23 +5,15 @@ import java.util.function.Consumer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 
 public class OptionsTable<T> extends Table {
+    public Array<Option<T>> optionList = new Array<>();
 
-    public class Option {
-        public Array<Label> labels = new Array<>();
-        public Image image;
-        public T value;
-    }
-
-    public Array<Option> optionList = new Array<>();
-
-    protected Consumer<Option> callback;
+    protected Consumer<Option<T>> callback;
     protected ItemRenderer<T> renderer;
     public Skin skin;
 
@@ -41,12 +33,11 @@ public class OptionsTable<T> extends Table {
     private void buildRows(Array<T> options) {
         for (T option : options) {
 
-            Option row = new Option();
-            row.value = option;
+            Option<T> row = new Option<>();
+            row.setValue(option);
             row.labels = new Array<>();
 
             renderer.render(this, row);
-            row();
 
             optionList.add(row);
         }
@@ -84,10 +75,9 @@ public class OptionsTable<T> extends Table {
 
     public void updateVisualState() {
         for (int i = 0; i < optionList.size; i++) {
-            Array<Label> r = optionList.get(i).labels;
 
             boolean isSelected = (i == selectedIndex);
-            renderer.applySelectionStyle(r, isSelected, focused);
+            renderer.applySelectionStyle(optionList.get(i), isSelected, focused);
         }
     }
 
@@ -102,12 +92,12 @@ public class OptionsTable<T> extends Table {
         updateVisualState();
     }
 
-    public void setCallback(Consumer<Option> callback) {
+    public void setCallback(Consumer<Option<T>> callback) {
         this.callback = callback;
     }
 
     public T getFocused() {
-        return optionList.get(selectedIndex).value;
+        return optionList.get(selectedIndex).getValue();
     }
 
     public void nextIndex() {
@@ -125,17 +115,13 @@ public class OptionsTable<T> extends Table {
         updateVisualState();
     }
 
-    public Option findByOption(T item) {
+    public Option<T> findByOption(T item) {
         for (int i = 0; i < optionList.size; i++) {
-            if (optionList.get(i).value == item) {
+            if (optionList.get(i).getValue() == item) {
                 return optionList.get(i);
             }
         }
         return null;
-    }
-
-    public void clearSelectionHighlight() {
-        // TODO
     }
 
     public static void addCursorAnimation(Label cursor) {

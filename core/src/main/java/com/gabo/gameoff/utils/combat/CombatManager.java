@@ -27,19 +27,19 @@ public class CombatManager {
     public Array<BaseUnit> enemies = new Array<>();
     public Array<BaseUnit> heroes = new Array<>();
 
-    private BaseUnit selectedEnemy;
-    private BaseUnit selectedHero;
+    private BaseUnit selectedTarget;
+    private BaseUnit selectedUnit;
+    private MenuActions selectedAction;
 
     public CombatManager(CombatScreen screen) {
         this.screen = screen;
 
-        enemies.add(new Enemy("Skeleton A", 30));
-        enemies.add(new Enemy("Skeleton B", 15));
-        enemies.add(new Enemy("Skeleton C", 10));
+        enemies.add(new Enemy("Skeleton A", 30, screen.assets));
+        enemies.add(new Enemy("Skeleton B", 15, screen.assets));
 
-        heroes.add(new Hero("Warrior", 30));
-        heroes.add(new Hero("Mage", 10));
-        heroes.add(new Hero("Fighter", 20));
+        heroes.add(new Hero("Warrior", 30, screen.assets));
+        heroes.add(new Hero("Mage", 10, screen.assets));
+        heroes.add(new Hero("Fighter", 20, screen.assets));
     }
 
     public void setState(CombatState state) {
@@ -47,7 +47,6 @@ public class CombatManager {
 
         switch (state) {
             case PLAYER_CHOOSE_ACTION:
-                screen.resetSelection();
                 break;
 
             case PLAYER_CHOOSE_TARGET:
@@ -56,8 +55,10 @@ public class CombatManager {
             case ENEMY_TURN:
                 // do random enemy attacks
                 for (BaseUnit enemy : enemies) {
-                    addTurn(enemy,
-                            heroes.get(MathUtils.random(heroes.size - 1)));
+                    setSelectedUnit(enemy);
+                    setSelectedTarget(heroes.get(MathUtils.random(heroes.size - 1)));
+                    setSelectedAction(MenuActions.FIGHT);
+                    addTurn();
                 }
                 for (BaseUnit hero : heroes) {
                     hero.disabled = false;
@@ -73,6 +74,7 @@ public class CombatManager {
 
             case COMBAT_RESULT:
                 if (turnList.isEmpty()) {
+                    screen.resetSelection();
                     setState(CombatState.PLAYER_CHOOSE_ACTION);
                 } else {
                     setState(CombatState.COMBAT);
@@ -89,19 +91,16 @@ public class CombatManager {
         }
     }
 
-    public Array<Turn> getTurn() {
+    public Array<Turn> getTurnList() {
         return turnList;
     }
 
     public void addTurn() {
-        // TODO rename this
-        selectedHero.disabled = true;
-        addTurn(selectedHero, selectedEnemy);
-    }
-
-    public void addTurn(BaseUnit a, BaseUnit b) {
-        Turn turn = new Turn(a, b, MenuActions.FIGHT);
-        turnList.add(turn);
+        getSelectedUnit().disabled = true;
+        turnList.add(new Turn(getSelectedUnit(), getSelectedTarget(), getSelectedAction()));
+        setSelectedUnit(null);
+        setSelectedTarget(null);
+        setSelectedAction(null);
     }
 
     public void shuffleTurn() {
@@ -120,11 +119,31 @@ public class CombatManager {
         return true;
     }
 
-    public void selectHero(BaseUnit hero) {
-        this.selectedHero = hero;
+    public void setSelectedUnit(BaseUnit unit) {
+        this.selectedUnit = unit;
     }
 
-    public void selectEnemy(BaseUnit enemy) {
-        this.selectedEnemy = enemy;
+    public void setSelectedTarget(BaseUnit target) {
+        this.selectedTarget = target;
+    }
+
+    public void setSelectedAction(MenuActions action) {
+        this.selectedAction = action;
+    }
+
+    public BaseUnit getSelectedUnit() {
+        return selectedUnit;
+    }
+
+    public BaseUnit getSelectedTarget() {
+        return selectedTarget;
+    }
+
+    public MenuActions getSelectedAction() {
+        return selectedAction;
+    }
+
+    public void applyDamage(Turn turn) {
+        turn.getAttacked().receiveDamage(turn.getAttacker().getDamage());
     }
 }

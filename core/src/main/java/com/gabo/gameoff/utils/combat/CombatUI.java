@@ -13,28 +13,30 @@ import com.gabo.gameoff.assets.Assets;
 import com.gabo.gameoff.entities.BaseUnit;
 import com.gabo.gameoff.entities.Enemy;
 import com.gabo.gameoff.screens.CombatScreen;
+import com.gabo.gameoff.utils.combat.animations.AnimationStrategy;
+import com.gabo.gameoff.utils.combat.animations.PhysicalAttackAnimation;
 import com.gabo.gameoff.utils.ui.ActionItemRenderer;
 import com.gabo.gameoff.utils.ui.DialogueBox;
 import com.gabo.gameoff.utils.ui.EnemyItemRenderer;
 import com.gabo.gameoff.utils.ui.HeroItemRenderer;
+import com.gabo.gameoff.utils.ui.Option;
 import com.gabo.gameoff.utils.ui.OptionsTable;
-import com.gabo.gameoff.utils.ui.OptionsTable.Option;
 
 public class CombatUI {
 
     public interface UIListener {
-        void onActionSelected(MenuActions action);
+        void onActionSelected(Option<MenuActions> action);
 
-        void onEnemySelected(BaseUnit enemy);
+        void onEnemySelected(Option<BaseUnit> enemy);
 
-        void onHeroSelected(BaseUnit hero);
+        void onHeroSelected(Option<BaseUnit> hero);
 
         void allHeroesFinished();
     }
 
-    Stage stage;
+    public Stage stage;
     Skin skin;
-    Assets assets;
+    public Assets assets;
     CombatScreen screen;
 
     // UI Elements
@@ -52,10 +54,10 @@ public class CombatUI {
         actions.add(MenuActions.RUN);
     }
 
-    public CombatUI(CombatScreen screen, Stage stage, Assets assets) {
-        this.stage = stage;
+    public CombatUI(CombatScreen screen) {
         this.screen = screen;
-        this.assets = assets;
+        this.stage = screen.stage;
+        this.assets = screen.assets;
         this.skin = assets.getSkin();
 
         mainTable = new Table();
@@ -85,7 +87,7 @@ public class CombatUI {
     private void prepareActionListTable() {
         actionsTable = new OptionsTable<>(actions, skin, new ActionItemRenderer(assets));
         actionsTable.setCallback((item) -> {
-            screen.onActionSelected(item.value);
+            screen.onActionSelected(item);
         });
     }
 
@@ -97,7 +99,7 @@ public class CombatUI {
 
         for (int i = 0; i < heroes.size; i++) {
             heroesTable.setCallback((item) -> {
-                screen.onHeroSelected(item.value);
+                screen.onHeroSelected(item);
             });
         }
     }
@@ -109,7 +111,7 @@ public class CombatUI {
 
         for (int i = 0; i < enemies.size; i++) {
             enemiesTable.setCallback((item) -> {
-                screen.onEnemySelected(item.value);
+                screen.onEnemySelected(item);
             });
         }
     }
@@ -144,43 +146,38 @@ public class CombatUI {
     public void animate(Turn turn, Runnable onFinish) {
         enemiesTable.setFocus(false);
 
-        DialogueBox dialogue = new DialogueBox(skin);
-        stage.addActor(dialogue);
-        List<String> info = new ArrayList<>();
-        info.add(turn.getAttacker().name + " attacks to " + turn.getAttacked().name);
-
         if (turn.getAttacked() instanceof Enemy) {
-            Option option = enemiesTable.findByOption(turn.getAttacked());
+            AnimationStrategy strategy = new PhysicalAttackAnimation();
+            strategy.animate(turn, onFinish, this);
+        } else {
+            List<String> info = new ArrayList<>();
+            info.add(turn.getAttacker().name + " attack " + turn.getAttacked().name);
 
-            if (option != null) {
-                option.image.addAction(
-                        Actions.repeat(5,
-                                Actions.sequence(
-                                        Actions.alpha(0),
-                                        Actions.delay(.1f),
-                                        Actions.alpha(1),
-                                        Actions.delay(.1f))));
-            }
+            DialogueBox dialogue = new DialogueBox(skin);
+            stage.addActor(dialogue);
+
+            dialogue.setLines(info, () -> {
+                dialogue.remove();
+                onFinish.run();
+            });
+
+            dialogue.addLineEndListener(() -> {
+                dialogue.addAction(Actions.sequence(
+                        Actions.delay(1f),
+                        Actions.run(dialogue::nextLine)));
+            });
         }
-
-        dialogue.setLines(info, () -> {
-            dialogue.remove();
-            onFinish.run();
-        });
-
-        dialogue.addLineEndListener(() -> {
-            dialogue.addAction(Actions.sequence(
-                    Actions.delay(1.25f),
-                    Actions.run(dialogue::nextLine)));
-        });
     }
 
     public void resetHeroSelection() {
         heroesTable.resetSelection();
-        heroesTable.clearSelectionHighlight();
     }
 
     public void refreshHeroesInfo() {
         heroesTable.refresh(screen.combatManager.heroes);
+    }
+
+    Option<BaseUnit> findEnemy(BaseUnit enemy) {
+        return enemiesTable.findByOption(enemy);
     }
 }
